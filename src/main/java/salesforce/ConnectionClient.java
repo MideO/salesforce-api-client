@@ -17,7 +17,7 @@ class ConnectionClient {
 
 
     ConnectionClient(Config config, HttpRequestSpecBuilder httpRequestSpecBuilder) {
-        this.config=config;
+        this.config = config;
         this.httpRequestSpecBuilder = httpRequestSpecBuilder;
     }
 
