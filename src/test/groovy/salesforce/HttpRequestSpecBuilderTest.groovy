@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 
 class HttpRequestSpecBuilderTest extends Specification {
-    def "getRequestSpecification Should Return Request Specification"() {
+    def "Should Return Request Specification"() {
 
         given:
             RequestSpecification requestSpecification
@@ -16,7 +16,17 @@ class HttpRequestSpecBuilderTest extends Specification {
 
         then:
             assert requestSpecification != null
+    }
 
+    def "Should throw AssertionError for non 200 response"() {
 
+        given:
+            HttpRequestSpecBuilder httpRequestSpecBuilder = new HttpRequestSpecBuilder();
+
+        when:
+            httpRequestSpecBuilder.getRequestSpecification().get("http://foobar.com/ssdssdsd")
+
+        then:
+            thrown(AssertionError)
     }
 }

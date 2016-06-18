@@ -27,29 +27,23 @@ class ConnectionClientTest extends Specification {
                                             config.username.replace("@", "%40"),
                                             config.password + config.token)
 
-    def "GetSalesForceWebServiceBulkConnection should return BulKConnection"() {
+    def "should return BulKConnection"() {
         given:
             String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
             when(mockHttpRequestSpecBuilder.getRequestSpecification())
                     .thenReturn(mockRequestSpecification);
 
-            when(mockRequestSpecification
-                    .baseUri("http://test.salesforce.com"))
+            when(mockRequestSpecification.baseUri("http://test.salesforce.com"))
                     .thenReturn(mockRequestSpecification)
 
-            when(mockRequestSpecification
-                    .body(formData))
+            when(mockRequestSpecification.body(formData))
                     .thenReturn(mockRequestSpecification)
 
-            when(mockRequestSpecification
-                    .header(new Header("Content-Type", "application/x-www-form-urlencoded")))
+            when(mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")))
                     .thenReturn(mockRequestSpecification)
 
-            when(mockRequestSpecification
-                    .post("/services/oauth2/token"))
-                    .thenReturn(new ResponseBuilder()
-                    .setBody(mockResponsePayload).setStatusCode(200).build())
-
+            when(mockRequestSpecification.post("/services/oauth2/token"))
+                    .thenReturn(new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build())
 
             ConnectionClient connectionClient = new ConnectionClient(config, mockHttpRequestSpecBuilder)
 

@@ -3,7 +3,6 @@ package salesforce;
 
 import com.sforce.async.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -11,17 +10,17 @@ import java.io.InputStream;
 public class WebServiceClient {
 
     private ConnectionClient connectionClient;
+    Job salesforceJob;
+    Batch salesforceBatch;
 
     public WebServiceClient(ConnectionClient connectionClient) {
         this.connectionClient = connectionClient;
     }
 
 
-    public BatchInfo publishCsvStringToTable(String csvPayloadString, String tableName) throws AsyncApiException, FileNotFoundException {
-        InputStream inputStream = new ByteArrayInputStream(csvPayloadString.getBytes());
-        Job salesforceJob = new Job();
-        Batch salesforceBatch = new Batch();
-        System.out.println("Writing data to "+ tableName);
+    public BatchInfo publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException, FileNotFoundException {
+        salesforceJob = new Job();
+        salesforceBatch = new Batch();
 
         JobInfo jobInfo = salesforceJob
                 .newJob(tableName)

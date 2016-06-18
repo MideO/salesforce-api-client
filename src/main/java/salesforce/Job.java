@@ -5,38 +5,34 @@ import com.sforce.async.*;
 
 class Job {
 
-    private JobInfo job;
-
-    public JobInfo getJob() {
-        return job;
-    }
-
+    private JobInfo jobInfo;
 
     Job(){
-        job = new JobInfo();
+        jobInfo = new JobInfo();
     }
 
     Job newJob(String jobName) {
-        job.setObject(jobName);
+        jobInfo.setObject(jobName);
         return this;
     }
 
     Job setOperation(OperationEnum operationEnum) {
-        job.setOperation(operationEnum);
+        jobInfo.setOperation(operationEnum);
         return this;
     }
 
     Job setContentType(ContentType setContentType) {
-        job.setContentType(setContentType);
+        jobInfo.setContentType(setContentType);
         return this;
     }
 
     JobInfo create(ConnectionClient connectionClient) throws AsyncApiException {
-        job = connectionClient.getSalesForceWebServiceBulkConnection().createJob(job);
-        return job;
+        jobInfo = connectionClient.getSalesForceWebServiceBulkConnection().createJob(jobInfo);
+        return jobInfo;
     }
 
-    void finishJob(ConnectionClient connectionClient) throws AsyncApiException {
-        connectionClient.getSalesForceWebServiceBulkConnection().closeJob(job.getId());
+    boolean finishJob(ConnectionClient connectionClient) throws AsyncApiException {
+        connectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
+        return true;
     }
 }
