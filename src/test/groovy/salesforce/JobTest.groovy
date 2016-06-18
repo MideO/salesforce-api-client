@@ -52,7 +52,7 @@ class JobTest extends Specification {
 
     }
 
-    def "Create"() {
+    def "Should Create JobInfo"() {
         when:
             JobInfo jobInfo = job.newJob("jobby")
                                 .setOperation(OperationEnum.insert)
@@ -64,7 +64,7 @@ class JobTest extends Specification {
 
     }
 
-    def "FinishJob"() {
+    def "Should finish salesforce jobInfo"() {
         given:
             job.newJob("jobby")
                 .setOperation(OperationEnum.insert)
