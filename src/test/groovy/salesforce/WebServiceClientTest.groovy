@@ -16,7 +16,7 @@ class WebServiceClientTest extends Specification {
     private BatchInfo mockBatchInfo = Mockito.mock(BatchInfo.class);
 
 
-    def "PublishCsvStringToTable"() {
+    def "Should publish CSV to salesforce table"() {
 
         given:
             InputStream inputStream = new ByteArrayInputStream("abcd".getBytes());

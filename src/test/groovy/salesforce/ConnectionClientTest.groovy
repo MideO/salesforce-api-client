@@ -27,7 +27,7 @@ class ConnectionClientTest extends Specification {
                                             config.username.replace("@", "%40"),
                                             config.password + config.token)
 
-    def "should return BulKConnection"() {
+    def "Should return BulKConnection"() {
         given:
             String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
             when(mockHttpRequestSpecBuilder.getRequestSpecification())
