@@ -1,13 +1,13 @@
-package salesforce;
+package http;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.specification.RequestSpecification;
 
 
 
-class HttpRequestSpecBuilder {
+public class HttpRequestSpecificationBuilder {
 
-    RequestSpecification getRequestSpecification() {
+    public RequestSpecification build() {
         return RestAssured
                 .expect()
                 .statusCode(200)

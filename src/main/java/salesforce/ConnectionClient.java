@@ -7,30 +7,30 @@ import com.sforce.async.AsyncApiException;
 import com.sforce.async.BulkConnection;
 
 import com.sforce.ws.ConnectorConfig;
+import http.HttpRequestSpecificationBuilder;
 
 
 class ConnectionClient {
 
     private static BulkConnection salesForceWebServiceBulkConnection;
-    private final HttpRequestSpecBuilder httpRequestSpecBuilder;
+    private final HttpRequestSpecificationBuilder httpRequestSpecificationBuilder;
     private Config config;
 
 
-    ConnectionClient(Config config, HttpRequestSpecBuilder httpRequestSpecBuilder) {
+    ConnectionClient(Config config, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
         this.config = config;
-        this.httpRequestSpecBuilder = httpRequestSpecBuilder;
+        this.httpRequestSpecificationBuilder = httpRequestSpecificationBuilder;
     }
 
 
     private JsonPath getSalesforceSession() {
         String formData = produceLoginRequest();
         String oauthPath = "/services/oauth2/token";
-        Response response = httpRequestSpecBuilder.getRequestSpecification().baseUri(config.loginUrl)
+        Response response = httpRequestSpecificationBuilder.build().baseUri(config.loginUrl)
                 .body(formData)
                 .header(new Header("Content-Type", "application/x-www-form-urlencoded"))
                 .post(oauthPath);
-
-        return JsonPath.from(response.print());
+        return new JsonPath(response.body().asString());
     }
 
     private String produceLoginRequest() {

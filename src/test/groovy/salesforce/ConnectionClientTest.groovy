@@ -4,6 +4,7 @@ import com.jayway.restassured.builder.ResponseBuilder
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.response.Header;
 import com.sforce.async.BulkConnection
+import http.HttpRequestSpecificationBuilder
 import org.mockito.Mockito
 import spock.lang.Specification
 
@@ -11,13 +12,13 @@ import static org.mockito.Mockito.when
 
 
 class ConnectionClientTest extends Specification {
-    HttpRequestSpecBuilder mockHttpRequestSpecBuilder
+    HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder
     RequestSpecification mockRequestSpecification
     Config config
 
 
     void setup() {
-        mockHttpRequestSpecBuilder = Mockito.mock(HttpRequestSpecBuilder.class);
+        mockHttpRequestSpecBuilder = Mockito.mock(HttpRequestSpecificationBuilder.class);
         mockRequestSpecification = Mockito.mock(RequestSpecification.class);
         config = new Config(
                 "http://test.salesforce.com",
@@ -33,7 +34,7 @@ class ConnectionClientTest extends Specification {
                 config.username.replace("@", "%40"),
                 config.password + config.token)
         String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
-        when(mockHttpRequestSpecBuilder.getRequestSpecification())
+        when(mockHttpRequestSpecBuilder.build())
                 .thenReturn(mockRequestSpecification);
 
         when(mockRequestSpecification.baseUri("http://test.salesforce.com"))

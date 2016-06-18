@@ -1,18 +1,18 @@
-package salesforce
+package http
 
 import com.jayway.restassured.specification.RequestSpecification
 import spock.lang.Specification
 
 
-class HttpRequestSpecBuilderTest extends Specification {
+class HttpRequestSpecificationBuilderTest extends Specification {
     def "Should Return Request Specification"() {
 
         given:
             RequestSpecification requestSpecification
-            HttpRequestSpecBuilder httpRequestSpecBuilder = new HttpRequestSpecBuilder();
+            HttpRequestSpecificationBuilder httpRequestSpecBuilder = new HttpRequestSpecificationBuilder();
 
         when:
-            requestSpecification = httpRequestSpecBuilder.getRequestSpecification()
+            requestSpecification = httpRequestSpecBuilder.build()
 
         then:
             assert requestSpecification != null
@@ -21,10 +21,10 @@ class HttpRequestSpecBuilderTest extends Specification {
     def "Should throw AssertionError for non 200 response"() {
 
         given:
-            HttpRequestSpecBuilder httpRequestSpecBuilder = new HttpRequestSpecBuilder();
+            HttpRequestSpecificationBuilder httpRequestSpecBuilder = new HttpRequestSpecificationBuilder();
 
         when:
-            httpRequestSpecBuilder.getRequestSpecification().get("http://foobar.com/ssdssdsd")
+            httpRequestSpecBuilder.build().get("https://test.salesforce.com/ssdssdsd")
 
         then:
             thrown(AssertionError)
