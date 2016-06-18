@@ -9,24 +9,13 @@ import java.io.InputStream;
 
 class Batch {
 
-    private BatchInfo batch;
+    private BatchInfo batchInfo;
     private JobInfo job;
     private InputStream csvInputStream;
 
-    public BatchInfo getBatch() {
-        return batch;
-    }
-
-    public JobInfo getJob() {
-        return job;
-    }
-
-    public InputStream getCsvInputStream() {
-        return csvInputStream;
-    }
 
     Batch(){
-        batch = new BatchInfo();
+        batchInfo = new BatchInfo();
     }
 
     Batch addJob(JobInfo job) {
@@ -34,15 +23,15 @@ class Batch {
         return this;
     }
 
-    Batch wtihCsvInputStream(InputStream csvInputStream) {
+    Batch withCsvInputStream(InputStream csvInputStream) {
         this.csvInputStream = csvInputStream;
         return this;
     }
 
 
     BatchInfo create(ConnectionClient connectionClient) throws AsyncApiException {
-        batch = connectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
-        return batch;
+        batchInfo = connectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
+        return batchInfo;
     }
 }
 

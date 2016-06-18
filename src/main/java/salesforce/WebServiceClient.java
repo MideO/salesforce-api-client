@@ -29,7 +29,7 @@ public class WebServiceClient {
                 .create(connectionClient);
 
         BatchInfo batchInfo = salesforceBatch.addJob(jobInfo)
-                .wtihCsvInputStream(inputStream)
+                .withCsvInputStream(inputStream)
                 .create(connectionClient);
         salesforceJob.finishJob(connectionClient);
         return batchInfo;
