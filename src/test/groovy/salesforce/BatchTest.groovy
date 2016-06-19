@@ -13,7 +13,7 @@ class BatchTest extends Specification {
     Batch batch
     JobInfo jobInfo
     InputStream inputStream
-    ConnectionClient mockConnectionClient
+    SalesforceConnectionClient mockConnectionClient
     BulkConnection mockBulkConnection
     BatchInfo mockBatchInfo
 
@@ -22,7 +22,7 @@ class BatchTest extends Specification {
         batch = new Batch()
         jobInfo = new JobInfo()
         inputStream = new ByteArrayInputStream("abcd".getBytes());
-        mockConnectionClient = Mockito.mock(ConnectionClient.class);
+        mockConnectionClient = Mockito.mock(SalesforceConnectionClient.class);
         mockBulkConnection = Mockito.mock(BulkConnection.class);
         mockBatchInfo = Mockito.mock(BatchInfo.class);
         when(mockConnectionClient.getSalesForceWebServiceBulkConnection()).thenReturn(mockBulkConnection)

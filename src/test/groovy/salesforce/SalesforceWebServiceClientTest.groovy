@@ -9,15 +9,15 @@ import spock.lang.Specification
 import static org.mockito.Mockito.when
 
 
-class WebServiceClientTest extends Specification {
-    ConnectionClient mockConnectionClient
+class SalesforceWebServiceClientTest extends Specification {
+    SalesforceConnectionClient mockConnectionClient
     BulkConnection mockBulkConnection
     JobInfo mockJobInfo
     BatchInfo mockBatchInfo
     InputStream inputStream
 
     void setup() {
-        mockConnectionClient = Mockito.mock(ConnectionClient.class)
+        mockConnectionClient = Mockito.mock(SalesforceConnectionClient.class)
         mockBulkConnection = Mockito.mock(BulkConnection.class)
         mockJobInfo = Mockito.mock(JobInfo.class)
         mockBatchInfo = Mockito.mock(BatchInfo.class)
@@ -35,7 +35,7 @@ class WebServiceClientTest extends Specification {
     def "Should publish CSV to salesforce table"() {
 
         given:
-            WebServiceClient webServiceClient = new WebServiceClient(mockConnectionClient)
+            SalesforceWebServiceClient webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
 
         when:
             boolean result = webServiceClient.publishCsvToTable(inputStream, "AccountTable")

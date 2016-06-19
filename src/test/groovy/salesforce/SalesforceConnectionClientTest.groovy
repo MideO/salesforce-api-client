@@ -11,16 +11,16 @@ import spock.lang.Specification
 import static org.mockito.Mockito.when
 
 
-class ConnectionClientTest extends Specification {
+class SalesforceConnectionClientTest extends Specification {
     HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder
     RequestSpecification mockRequestSpecification
-    Config config
+    SalesforceConfig config
 
 
     void setup() {
         mockHttpRequestSpecBuilder = Mockito.mock(HttpRequestSpecificationBuilder.class);
         mockRequestSpecification = Mockito.mock(RequestSpecification.class);
-        config = new Config(
+        config = new SalesforceConfig(
                 "http://test.salesforce.com",
                 "3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX",
                 "6513759911120645968",
@@ -53,7 +53,7 @@ class ConnectionClientTest extends Specification {
 
     def "Should return BulKConnection"() {
         given:
-            ConnectionClient connectionClient = new ConnectionClient(config, mockHttpRequestSpecBuilder)
+            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockHttpRequestSpecBuilder)
 
         when:
             BulkConnection bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()

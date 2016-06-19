@@ -29,8 +29,8 @@ class Batch {
     }
 
 
-    BatchInfo create(ConnectionClient connectionClient) throws AsyncApiException {
-        batchInfo = connectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
+    BatchInfo create(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
+        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
         return batchInfo;
     }
 }

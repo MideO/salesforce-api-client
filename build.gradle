@@ -1,22 +1,24 @@
-group 'com.mideo'
 buildscript {
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
-jar {
-    baseName = 'salesforce-api-client'
-    version = '0.0.1-SNAPSHOT'
-}
 
+group 'com.mideo'
+
+version = '0.0.1'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -47,3 +49,40 @@ test {
         events "passed", "skipped", "failed"
     }
 }
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: "file://${System.properties['user.home']}/.m2/repository"
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    baseName = 'salesforce-api-client'
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+build.doLast {
+    uploadArchives.execute()
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'org.mideo'
+            artifactId 'salesforce-api-client'
+            version '0.0.1'
+
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
+

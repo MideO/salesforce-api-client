@@ -26,13 +26,13 @@ class Job {
         return this;
     }
 
-    JobInfo create(ConnectionClient connectionClient) throws AsyncApiException {
-        jobInfo = connectionClient.getSalesForceWebServiceBulkConnection().createJob(jobInfo);
+    JobInfo create(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
+        jobInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createJob(jobInfo);
         return jobInfo;
     }
 
-    boolean finishJob(ConnectionClient connectionClient) throws AsyncApiException {
-        connectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
+    boolean finishJob(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
+        salesforceConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
         return true;
     }
 }

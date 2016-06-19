@@ -10,36 +10,36 @@ import com.sforce.ws.ConnectorConfig;
 import http.HttpRequestSpecificationBuilder;
 
 
-class ConnectionClient {
+class SalesforceConnectionClient {
 
     private static BulkConnection salesForceWebServiceBulkConnection;
     private final HttpRequestSpecificationBuilder httpRequestSpecificationBuilder;
-    private Config config;
+    private SalesforceConfig salesforceConfig;
 
 
-    ConnectionClient(Config config, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
-        this.config = config;
+    SalesforceConnectionClient(SalesforceConfig salesforceConfig, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
+        this.salesforceConfig = salesforceConfig;
         this.httpRequestSpecificationBuilder = httpRequestSpecificationBuilder;
     }
 
 
     private JsonPath getSalesforceSession() {
-        String formData = produceLoginRequest();
+        String formData = buildLoginPayload();
         String oauthPath = "/services/oauth2/token";
-        Response response = httpRequestSpecificationBuilder.build().baseUri(config.loginUrl)
+        Response response = httpRequestSpecificationBuilder.build().baseUri(salesforceConfig.loginUrl)
                 .body(formData)
                 .header(new Header("Content-Type", "application/x-www-form-urlencoded"))
                 .post(oauthPath);
         return new JsonPath(response.body().asString());
     }
 
-    private String produceLoginRequest() {
+    private String buildLoginPayload() {
         String loginFormTemplate = "grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
         return String.format(loginFormTemplate,
-                config.clientId,
-                config.clientSecret,
-                config.username.replace("@", "%40"),
-                config.password + config.token);
+                salesforceConfig.clientId,
+                salesforceConfig.clientSecret,
+                salesforceConfig.username.replace("@", "%40"),
+                salesforceConfig.password + salesforceConfig.token);
     }
 
     private ConnectorConfig getConnectorConfig() {

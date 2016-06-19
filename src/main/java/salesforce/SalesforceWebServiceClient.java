@@ -7,14 +7,14 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 
-public class WebServiceClient {
+public class SalesforceWebServiceClient {
 
-    private ConnectionClient connectionClient;
+    private SalesforceConnectionClient salesforceConnectionClient;
     Job salesforceJob;
     Batch salesforceBatch;
 
-    public WebServiceClient(ConnectionClient connectionClient) {
-        this.connectionClient = connectionClient;
+    public SalesforceWebServiceClient(SalesforceConnectionClient salesforceConnectionClient) {
+        this.salesforceConnectionClient = salesforceConnectionClient;
     }
 
 
@@ -26,12 +26,12 @@ public class WebServiceClient {
                 .newJob(tableName)
                 .setOperation(OperationEnum.insert)
                 .setContentType(ContentType.CSV)
-                .create(connectionClient);
+                .create(salesforceConnectionClient);
 
         BatchInfo batchInfo = salesforceBatch.addJob(jobInfo)
                 .withCsvInputStream(inputStream)
-                .create(connectionClient);
-        salesforceJob.finishJob(connectionClient);
+                .create(salesforceConnectionClient);
+        salesforceJob.finishJob(salesforceConnectionClient);
         return batchInfo;
     }
 }

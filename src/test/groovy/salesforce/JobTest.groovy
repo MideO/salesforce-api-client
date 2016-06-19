@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when
 
 class JobTest extends Specification {
     Job job
-    ConnectionClient mockConnectionClient
+    SalesforceConnectionClient mockConnectionClient
     BulkConnection mockBulkConnection
 
 
@@ -22,7 +22,7 @@ class JobTest extends Specification {
     void setup(){
         job =  new Job()
         mockJobInfo = Mockito.mock(JobInfo.class)
-        mockConnectionClient = Mockito.mock(ConnectionClient.class)
+        mockConnectionClient = Mockito.mock(SalesforceConnectionClient.class)
         mockBulkConnection = Mockito.mock(BulkConnection.class)
         when(mockConnectionClient.getSalesForceWebServiceBulkConnection()).thenReturn(mockBulkConnection)
         when(mockBulkConnection.createJob(Mockito.any(JobInfo.class))).thenReturn(mockJobInfo)

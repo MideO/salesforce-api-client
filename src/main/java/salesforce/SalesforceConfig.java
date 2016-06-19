@@ -1,7 +1,7 @@
 package salesforce;
 
 
-class Config {
+class SalesforceConfig {
     String loginUrl;
     String clientId;
     String clientSecret;
@@ -9,7 +9,7 @@ class Config {
     String password;
     String token;
 
-    public Config(String loginUrl, String clientId, String clientSecret, String username, String password, String token) {
+    public SalesforceConfig(String loginUrl, String clientId, String clientSecret, String username, String password, String token) {
         this.loginUrl = loginUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
