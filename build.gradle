@@ -72,6 +72,10 @@ jar {
     }
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -81,6 +85,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 artifacts {
     archives jar
     archives sourcesJar
+    archives javadocJar
 
 }
 
@@ -92,9 +97,9 @@ build.doLast {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId 'org.mideo'
-            artifactId rootProject.name
-            version '0.0.1'
+            groupId group
+            artifactId name
+            version version
 
             from components.java
             artifact sourcesJar
