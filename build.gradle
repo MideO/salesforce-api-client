@@ -12,7 +12,6 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-
 group 'com.mideo'
 
 version = '0.0.1'
@@ -46,7 +45,7 @@ dependencies {
 
 test {
     testLogging {
-        events "passed", "skipped", "failed"
+        events 'passed', 'skipped', 'failed'
     }
 }
 
@@ -58,14 +57,31 @@ uploadArchives {
     }
 }
 
+
+jar {
+    archivesBaseName = rootProject.name
+    group = group
+    version = version
+    manifest {
+        attributes 'Implementation-Title': rootProject.name,
+                'Implementation-Version': version,
+                'Built-Date': new Date(),
+                'Built-By': 'Mide Ojikutu' ,
+                'Built-JDK': System.getProperty('java.version'),
+                'Built-Gradle': gradle.gradleVersion
+    }
+}
+
+
 task sourcesJar(type: Jar, dependsOn: classes) {
-    baseName = 'salesforce-api-client'
     classifier = 'sources'
-    from sourceSets.main.allJava
+    from sourceSets.main.allSource
 }
 
 artifacts {
+    archives jar
     archives sourcesJar
+
 }
 
 build.doLast {
@@ -77,12 +93,16 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId 'org.mideo'
-            artifactId 'salesforce-api-client'
+            artifactId rootProject.name
             version '0.0.1'
 
             from components.java
             artifact sourcesJar
         }
     }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion =  2.13
 }
 
