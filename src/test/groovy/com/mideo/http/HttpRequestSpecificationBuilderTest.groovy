@@ -1,4 +1,4 @@
-package http
+package com.mideo.http
 
 import com.jayway.restassured.specification.RequestSpecification
 import spock.lang.Specification

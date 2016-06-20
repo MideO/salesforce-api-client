@@ -1,4 +1,4 @@
-package salesforce;
+package com.mideo.salesforce;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Header;
@@ -7,10 +7,10 @@ import com.sforce.async.AsyncApiException;
 import com.sforce.async.BulkConnection;
 
 import com.sforce.ws.ConnectorConfig;
-import http.HttpRequestSpecificationBuilder;
+import com.mideo.http.HttpRequestSpecificationBuilder;
 
 
-class SalesforceConnectionClient {
+public class SalesforceConnectionClient {
 
     private static BulkConnection salesForceWebServiceBulkConnection;
     private final HttpRequestSpecificationBuilder httpRequestSpecificationBuilder;

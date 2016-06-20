@@ -14,7 +14,7 @@ apply plugin: 'maven-publish'
 
 group 'com.mideo'
 
-version = '0.0.1'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenLocal()
@@ -91,20 +91,6 @@ artifacts {
 
 build.doLast {
     uploadArchives.execute()
-}
-
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId group
-            artifactId name
-            version version
-
-            from components.java
-            artifact sourcesJar
-        }
-    }
 }
 
 task wrapper(type: Wrapper) {

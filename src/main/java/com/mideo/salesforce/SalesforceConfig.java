@@ -1,7 +1,7 @@
-package salesforce;
+package com.mideo.salesforce;
 
 
-class SalesforceConfig {
+public class SalesforceConfig {
     String loginUrl;
     String clientId;
     String clientSecret;

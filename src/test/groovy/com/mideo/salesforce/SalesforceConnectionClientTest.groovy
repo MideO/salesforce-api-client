@@ -1,10 +1,12 @@
-package salesforce
+package com.mideo.salesforce
 
 import com.jayway.restassured.builder.ResponseBuilder
 import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Header
+import com.mideo.salesforce.SalesforceConfig
+import com.mideo.salesforce.SalesforceConnectionClient;
 import com.sforce.async.BulkConnection
-import http.HttpRequestSpecificationBuilder
+import com.mideo.http.HttpRequestSpecificationBuilder
 import org.mockito.Mockito
 import spock.lang.Specification
 
