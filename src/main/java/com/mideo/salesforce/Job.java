@@ -1,6 +1,9 @@
 package com.mideo.salesforce;
 
-import com.sforce.async.*;
+import com.sforce.async.AsyncApiException;
+import com.sforce.async.ContentType;
+import com.sforce.async.JobInfo;
+import com.sforce.async.OperationEnum;
 
 
 class Job {
