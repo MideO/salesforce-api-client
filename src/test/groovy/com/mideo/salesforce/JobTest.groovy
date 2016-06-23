@@ -4,31 +4,15 @@ import com.sforce.async.BulkConnection
 import com.sforce.async.ContentType
 import com.sforce.async.JobInfo
 import com.sforce.async.OperationEnum
-import org.mockito.Mockito
 import spock.lang.Specification
-
-import static org.mockito.Mockito.when
 
 
 class JobTest extends Specification {
-    Job job
-    SalesforceConnectionClient mockConnectionClient
-    BulkConnection mockBulkConnection
 
-
-    JobInfo mockJobInfo
-
-
-    void setup(){
-        job =  new Job()
-        mockJobInfo = Mockito.mock(JobInfo.class)
-        mockConnectionClient = Mockito.mock(SalesforceConnectionClient.class)
-        mockBulkConnection = Mockito.mock(BulkConnection.class)
-        when(mockConnectionClient.getSalesForceWebServiceBulkConnection()).thenReturn(mockBulkConnection)
-        when(mockBulkConnection.createJob(Mockito.any(JobInfo.class))).thenReturn(mockJobInfo)
-    }
 
     def "Should create new job"() {
+        given:
+            Job job = new Job()
         when:
             job.newJob("jobby")
         then:
@@ -37,6 +21,8 @@ class JobTest extends Specification {
     }
 
     def "Should set Operation"() {
+        given:
+            Job job = new Job()
         when:
             job.setOperation(OperationEnum.insert)
         then:
@@ -45,6 +31,8 @@ class JobTest extends Specification {
     }
 
     def "Should Set ContentType"() {
+        given:
+            Job job = new Job()
         when:
             job.setContentType(ContentType.CSV)
         then:
@@ -53,28 +41,44 @@ class JobTest extends Specification {
     }
 
     def "Should Create JobInfo"() {
+        given:
+            Job job = new Job()
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
+            BulkConnection mockBulkConnection = Mock(BulkConnection)
+            JobInfo mockJobInfo = Mock(JobInfo)
         when:
+            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+            mockBulkConnection.createJob(_) >> mockJobInfo
+
             JobInfo jobInfo = job.newJob("jobby")
                                 .setOperation(OperationEnum.insert)
                                 .setContentType(ContentType.CSV)
                                 .create(mockConnectionClient);
         then:
-            assert jobInfo == mockJobInfo
+            assert jobInfo == jobInfo
 
 
     }
 
     def "Should finish salesforce jobInfo"() {
         given:
+            Job job = new Job()
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
+            BulkConnection mockBulkConnection = Mock(BulkConnection)
+            JobInfo mockJobInfo = Mock(JobInfo)
+
+
+        when:
+            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+            mockBulkConnection.createJob(_) >> mockJobInfo
+            mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
             job.newJob("jobby")
                 .setOperation(OperationEnum.insert)
                 .setContentType(ContentType.CSV)
                 .create(mockConnectionClient);
-        when:
-            boolean result = job.finishJob(mockConnectionClient)
 
         then:
-            assert result
+            assert mockJobInfo == job.finishJob(mockConnectionClient)
 
 
     }

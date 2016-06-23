@@ -3,7 +3,6 @@ package com.mideo.salesforce;
 
 import com.sforce.async.*;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 
@@ -18,7 +17,7 @@ public class SalesforceWebServiceClient {
     }
 
 
-    public BatchInfo publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException, FileNotFoundException {
+    public BatchInfo publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
         salesforceJob = new Job();
         salesforceBatch = new Batch();
 

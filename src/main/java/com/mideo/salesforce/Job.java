@@ -34,8 +34,8 @@ class Job {
         return jobInfo;
     }
 
-    boolean finishJob(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
-        salesforceConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
-        return true;
+    JobInfo finishJob(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
+        return salesforceConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
+
     }
 }

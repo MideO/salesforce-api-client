@@ -3,61 +3,40 @@ package com.mideo.salesforce
 import com.jayway.restassured.builder.ResponseBuilder
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.response.Header
-import com.mideo.salesforce.SalesforceConfig
-import com.mideo.salesforce.SalesforceConnectionClient;
 import com.sforce.async.BulkConnection
 import com.mideo.http.HttpRequestSpecificationBuilder
-import org.mockito.Mockito
 import spock.lang.Specification
-
-import static org.mockito.Mockito.when
 
 
 class SalesforceConnectionClientTest extends Specification {
-    HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder
-    RequestSpecification mockRequestSpecification
-    SalesforceConfig config
 
-
-    void setup() {
-        mockHttpRequestSpecBuilder = Mockito.mock(HttpRequestSpecificationBuilder.class);
-        mockRequestSpecification = Mockito.mock(RequestSpecification.class);
-        config = new SalesforceConfig(
+    def "Should return BulkConnection"() {
+        given:
+            HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder = Mock(HttpRequestSpecificationBuilder)
+            RequestSpecification mockRequestSpecification = Mock(RequestSpecification)
+            SalesforceConfig config = new SalesforceConfig(
                 "http://test.salesforce.com",
                 "3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX",
                 "6513759911120645968",
                 "foo@bar.com",
                 "test1234",
                 "b2Sm7wA81TOm6sErbLuYtRrP"
-        )
-        String formData = String.format("grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s",
+            )
+            String formData = String.format("grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s",
                 config.clientId,
                 config.clientSecret,
                 config.username.replace("@", "%40"),
                 config.password + config.token)
-        String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
-        when(mockHttpRequestSpecBuilder.build())
-                .thenReturn(mockRequestSpecification);
+            String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
 
-        when(mockRequestSpecification.baseUri("http://test.salesforce.com"))
-                .thenReturn(mockRequestSpecification)
-
-        when(mockRequestSpecification.body(formData))
-                .thenReturn(mockRequestSpecification)
-
-        when(mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")))
-                .thenReturn(mockRequestSpecification)
-
-        when(mockRequestSpecification.post("/services/oauth2/token"))
-                .thenReturn(new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build())
-
-    }
-
-    def "Should return BulKConnection"() {
-        given:
-            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockHttpRequestSpecBuilder)
 
         when:
+            mockHttpRequestSpecBuilder.build()  >> mockRequestSpecification
+            mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
+            mockRequestSpecification.body(formData) >> mockRequestSpecification
+            mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
+            mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
+            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockHttpRequestSpecBuilder)
             BulkConnection bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()
 
         then:
