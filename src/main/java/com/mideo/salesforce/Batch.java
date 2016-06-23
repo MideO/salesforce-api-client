@@ -12,6 +12,7 @@ class Batch {
     private BatchInfo batchInfo;
     private JobInfo job;
     private InputStream csvInputStream;
+    private SalesforceConnectionClient salesforceConnectionClient;
 
 
     Batch(){
@@ -23,15 +24,28 @@ class Batch {
         return this;
     }
 
+    Batch withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
+        this.salesforceConnectionClient = salesforceConnectionClient;
+        return this;
+    }
+
     Batch withCsvInputStream(InputStream csvInputStream) {
         this.csvInputStream = csvInputStream;
         return this;
     }
 
 
-    BatchInfo create(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
+    Batch createStream() throws AsyncApiException {
         batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
-        return batchInfo;
+        return this;
+    }
+
+    JobInfo finaliseJob() throws AsyncApiException {
+        return salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .closeJob(job.getId());
+
+
     }
 }
 

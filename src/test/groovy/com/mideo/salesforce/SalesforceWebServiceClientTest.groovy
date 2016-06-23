@@ -21,14 +21,17 @@ class SalesforceWebServiceClientTest extends Specification {
 
         when:
             mockJobInfo.getId() >> "1234"
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockBulkConnection.createJob(_) >> mockJobInfo
+            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+            mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
 
-            BatchInfo result = webServiceClient.publishCsvToTable(inputStream, "AccountTable")
+
+
+            JobInfo resultJobInfo = webServiceClient.publishCsvToTable(inputStream, "AccountTable")
 
         then:
-            assert mockBatchInfo == result
+            assert mockJobInfo == resultJobInfo
 
     }
 }

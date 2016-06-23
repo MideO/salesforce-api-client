@@ -9,9 +9,16 @@ import com.sforce.async.OperationEnum;
 class Job {
 
     private JobInfo jobInfo;
+    private SalesforceConnectionClient salesforceConnectionClient;
 
     Job(){
+
         jobInfo = new JobInfo();
+    }
+
+    Job withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
+        this.salesforceConnectionClient = salesforceConnectionClient;
+        return this;
     }
 
     Job newJob(String jobName) {
@@ -29,13 +36,17 @@ class Job {
         return this;
     }
 
-    JobInfo create(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
-        jobInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createJob(jobInfo);
+    JobInfo create() throws AsyncApiException {
+        jobInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .createJob(jobInfo);
         return jobInfo;
     }
 
-    JobInfo finishJob(SalesforceConnectionClient salesforceConnectionClient) throws AsyncApiException {
-        return salesforceConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(jobInfo.getId());
+    JobInfo finishJob() throws AsyncApiException {
+        return salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .closeJob(jobInfo.getId());
 
     }
 }
