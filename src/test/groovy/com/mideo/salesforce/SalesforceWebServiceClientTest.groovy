@@ -16,11 +16,12 @@ class SalesforceWebServiceClientTest extends Specification {
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             JobInfo mockJobInfo = Mock(JobInfo)
             BatchInfo mockBatchInfo = Mock(BatchInfo)
-            InputStream inputStream = new ByteArrayInputStream("abcd".getBytes())
+            InputStream inputStream = new ByteArrayInputStream('abcd'.getBytes())
             SalesforceWebServiceClient webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
 
         when:
-            mockJobInfo.getId() >> "1234"
+            mockJobInfo.getId() >> '1234'
+            mockJobInfo.getState() >> 'Closed'
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
@@ -28,10 +29,10 @@ class SalesforceWebServiceClientTest extends Specification {
 
 
 
-            JobInfo resultJobInfo = webServiceClient.publishCsvToTable(inputStream, "AccountTable")
+            String result = webServiceClient.publishCsvToTable(inputStream, 'AccountTable')
 
         then:
-            assert mockJobInfo == resultJobInfo
+            assert result.equalsIgnoreCase('Closed')
 
     }
 }

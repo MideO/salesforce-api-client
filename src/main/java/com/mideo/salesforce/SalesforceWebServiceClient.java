@@ -15,7 +15,7 @@ public class SalesforceWebServiceClient {
     }
 
 
-    public JobInfo publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
+    public String publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
         JobInfo jobInfo = new Job()
                 .withSalesforceClient(salesforceConnectionClient)
                 .newJob(tableName)

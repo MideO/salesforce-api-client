@@ -18,7 +18,7 @@ class BatchTest extends Specification {
     def "Should Add Job"() {
         given:
             batch = new Batch()
-            inputStream = new ByteArrayInputStream("abcd".getBytes());
+            inputStream = new ByteArrayInputStream('abcd'.getBytes());
         when:
             batch.addJob(jobInfo)
         then:
@@ -28,7 +28,7 @@ class BatchTest extends Specification {
     def "Should Add Input Stream"() {
         given:
             batch = new Batch()
-            inputStream = new ByteArrayInputStream("abcd".getBytes());
+            inputStream = new ByteArrayInputStream('abcd'.getBytes());
         when:
             batch.withCsvInputStream(inputStream)
         then:
@@ -39,7 +39,7 @@ class BatchTest extends Specification {
     def "Should Create BatchInfo"() {
         given:
             batch = new Batch()
-            inputStream = new ByteArrayInputStream("abcd".getBytes());
+            inputStream = new ByteArrayInputStream('abcd'.getBytes());
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             BatchInfo mockBatchInfo = Mock(BatchInfo)
@@ -58,7 +58,7 @@ class BatchTest extends Specification {
     def "Should finalise Job"() {
         given:
             batch = new Batch()
-            inputStream = new ByteArrayInputStream("abcd".getBytes());
+            inputStream = new ByteArrayInputStream('abcd'.getBytes());
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             JobInfo mockJobInfo = Mock(JobInfo)
@@ -69,15 +69,15 @@ class BatchTest extends Specification {
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
             mockBulkConnection.createBatchFromStream(jobInfo, inputStream) >> mockBatchInfo
-
+            mockJobInfo.getState() >> 'Failed'
             JobInfo jobInfo = new Job()
-                    .newJob("jobby")
+                    .newJob('jobby')
                     .withSalesforceClient(mockConnectionClient)
                     .setOperation(OperationEnum.insert)
                     .setContentType(ContentType.CSV)
                     .create()
 
-        JobInfo resultJobInfo = batch
+        String result = batch
                 .withSalesforceClient(mockConnectionClient)
                 .addJob(jobInfo)
                 .withCsvInputStream(inputStream)
@@ -85,7 +85,7 @@ class BatchTest extends Specification {
                 .finaliseJob()
 
         then:
-            assert jobInfo == resultJobInfo
+            assert result.equalsIgnoreCase('Failed')
 
 
     }
