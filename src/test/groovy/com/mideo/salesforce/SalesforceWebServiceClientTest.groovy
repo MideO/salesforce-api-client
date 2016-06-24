@@ -24,15 +24,13 @@ class SalesforceWebServiceClientTest extends Specification {
             mockJobInfo.getState() >> 'Closed'
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
-            mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
+            mockBulkConnection.closeJob('1234') >> mockJobInfo
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
-
-
 
             String result = webServiceClient.publishCsvToTable(inputStream, 'AccountTable')
 
         then:
-            assert result.equalsIgnoreCase('Closed')
+            1 * mockBulkConnection.closeJob('1234')
 
     }
 }

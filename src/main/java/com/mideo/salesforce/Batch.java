@@ -40,11 +40,10 @@ class Batch {
         return this;
     }
 
-    String finaliseJob() throws AsyncApiException {
+    void finaliseJob() throws AsyncApiException {
         salesforceConnectionClient
                 .getSalesForceWebServiceBulkConnection()
                 .closeJob(job.getId());
-        return job.getState().toString();
     }
 }
 

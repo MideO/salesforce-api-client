@@ -15,7 +15,7 @@ public class SalesforceWebServiceClient {
     }
 
 
-    public String publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
+    public void publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
         JobInfo jobInfo = new Job()
                 .withSalesforceClient(salesforceConnectionClient)
                 .newJob(tableName)
@@ -23,7 +23,7 @@ public class SalesforceWebServiceClient {
                 .setContentType(ContentType.CSV)
                 .create();
 
-        return new Batch()
+        new Batch()
                 .withSalesforceClient(salesforceConnectionClient)
                 .addJob(jobInfo)
                 .withCsvInputStream(inputStream)

@@ -77,15 +77,14 @@ class BatchTest extends Specification {
                     .setContentType(ContentType.CSV)
                     .create()
 
-        String result = batch
-                .withSalesforceClient(mockConnectionClient)
+            batch.withSalesforceClient(mockConnectionClient)
                 .addJob(jobInfo)
                 .withCsvInputStream(inputStream)
                 .createStream()
                 .finaliseJob()
 
         then:
-            assert result.equalsIgnoreCase('Failed')
+            1 * mockBulkConnection.closeJob(_)
 
 
     }
