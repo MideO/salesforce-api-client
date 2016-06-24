@@ -71,28 +71,4 @@ class JobTest extends Specification {
 
 
     }
-
-    def "Should finish salesforce jobInfo"() {
-        given:
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
-            BulkConnection mockBulkConnection = Mock(BulkConnection)
-            JobInfo mockJobInfo = Mock(JobInfo)
-
-
-        when:
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
-            mockBulkConnection.createJob(_) >> mockJobInfo
-            mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
-            Job job = new Job()
-                    .newJob("jobby")
-                    .withSalesforceClient(mockConnectionClient)
-                    .setOperation(OperationEnum.insert)
-                    .setContentType(ContentType.CSV)
-            job.create()
-
-        then:
-            assert mockJobInfo == job.finishJob()
-
-
-    }
 }

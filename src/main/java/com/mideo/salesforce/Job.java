@@ -42,11 +42,4 @@ class Job {
                 .createJob(jobInfo);
         return jobInfo;
     }
-
-    JobInfo finishJob() throws AsyncApiException {
-        return salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
-                .closeJob(jobInfo.getId());
-
-    }
 }
