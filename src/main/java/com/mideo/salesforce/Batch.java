@@ -49,13 +49,5 @@ class Batch {
         publishResult = new PublishResult(batchInfo, jobInfo);
         return publishResult;
     }
-
-    String getStatus() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
-                .getBatchInfo(batchInfo.getJobId(), batchInfo.getId());
-
-        return String.valueOf(batchInfo.getState());
-    }
 }
 

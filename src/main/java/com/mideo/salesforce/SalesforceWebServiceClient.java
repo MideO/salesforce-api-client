@@ -33,4 +33,12 @@ public class SalesforceWebServiceClient {
                 .finaliseJob();
 
     }
+
+
+    public String getPublishedDataStatus(String jobId, String batchId) throws AsyncApiException {
+        BatchInfo batchInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .getBatchInfo(jobId, batchId);
+        return String.valueOf(batchInfo.getState());
+    }
 }

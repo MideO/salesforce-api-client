@@ -58,35 +58,8 @@ class BatchTest extends Specification {
             assert resultBatch.batchInfo == mockBatchInfo
     }
 
-    def "Should get Job Status"() {
-        given:
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
-            BulkConnection mockBulkConnection = Mock(BulkConnection)
-            JobInfo mockJobInfo = Mock(JobInfo)
-            BatchInfo mockBatchInfo = Mock(BatchInfo)
-            InputStream inputStream = new ByteArrayInputStream('abcd'.getBytes())
-            Batch batch = new Batch().withSalesforceClient(mockConnectionClient).addJob(mockJobInfo)
-
-        when:
-            mockJobInfo.getId() >> '1234';
-            mockJobInfo.getState() >> JobStateEnum.Closed
-            mockJobInfo.getObject() >> 'AccountTable'
-            mockBatchInfo.getState() >> BatchStateEnum.InProgress
-            mockBulkConnection.closeJob(mockJobInfo.getId()) >> mockJobInfo
-            mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
-            mockBulkConnection.getBatchInfo(mockBatchInfo.getJobId(), mockBatchInfo.getId()) >> mockBatchInfo
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
-
-
-
-        then:
-            assert batch.getStatus() == 'InProgress'
-    }
-
     def "Should finalise Job"() {
         given:
-
-
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             JobInfo mockJobInfo = Mock(JobInfo)

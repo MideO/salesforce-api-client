@@ -38,4 +38,22 @@ class SalesforceWebServiceClientTest extends Specification {
             assert publishResult.isPublished();
 
     }
+
+    def "Should get Published Data Status"() {
+        given:
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
+            BulkConnection mockBulkConnection = Mock(BulkConnection)
+            BatchInfo mockBatchInfo = Mock(BatchInfo)
+            SalesforceWebServiceClient webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
+        when:
+            mockBatchInfo.getJobId() >> '1234'
+            mockBatchInfo.getId() >> '6789';
+            mockBatchInfo.getState() >> BatchStateEnum.InProgress
+            mockBulkConnection.getBatchInfo(mockBatchInfo.getJobId(), mockBatchInfo.getId()) >> mockBatchInfo
+            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+
+        then:
+            assert webServiceClient.getPublishedDataStatus(mockBatchInfo.getJobId(), mockBatchInfo.getId()) == 'InProgress'
+    }
 }
