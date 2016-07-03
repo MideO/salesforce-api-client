@@ -98,7 +98,7 @@ class BatchTest extends Specification {
             mockJobInfo.getId() >> '1234';
             mockJobInfo.getState() >> JobStateEnum.Closed
             mockJobInfo.getObject() >> 'AccountTable'
-            mockBatchInfo.getState() >> BatchStateEnum.Completed
+            mockBatchInfo.getState() >> BatchStateEnum.Failed
             mockBulkConnection.closeJob(mockJobInfo.getId()) >> mockJobInfo
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
