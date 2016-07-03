@@ -13,7 +13,6 @@ class Batch {
     private JobInfo jobInfo;
     private InputStream csvInputStream;
     private SalesforceConnectionClient salesforceConnectionClient;
-    private PublishResult publishResult;
 
 
     Batch(){
@@ -46,8 +45,7 @@ class Batch {
         jobInfo = salesforceConnectionClient
                 .getSalesForceWebServiceBulkConnection()
                 .closeJob(jobInfo.getId());
-        publishResult = new PublishResult(batchInfo, jobInfo);
-        return publishResult;
+        return new PublishResult(batchInfo, jobInfo);
     }
 }
 
