@@ -51,6 +51,24 @@ class JobTest extends Specification {
 
     }
 
+    def "Should Set Job sObject"() {
+        given:
+            Job job = new Job()
+
+        when:
+            job.forSObject('Account')
+        then:
+            assert job.jobInfo.object__is_set
+    }
+
+    def "Should set Job as Concurrent"() {
+        given:
+            Job job = new Job();
+        when:
+            job.isConcurrent();
+        then:
+            assert job.jobInfo.concurrencyMode__is_set
+    }
     def "Should Create JobInfo"() {
         given:
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)

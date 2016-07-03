@@ -9,25 +9,28 @@ import java.io.InputStream;
 public class SalesforceWebServiceClient {
 
     private SalesforceConnectionClient salesforceConnectionClient;
+    private Job job;
+    private Batch batch;
 
     public SalesforceWebServiceClient(SalesforceConnectionClient salesforceConnectionClient) {
         this.salesforceConnectionClient = salesforceConnectionClient;
+        job = new Job();
+        batch = new Batch();
     }
 
 
-    public void publishCsvToTable(InputStream inputStream, String tableName) throws AsyncApiException {
-        JobInfo jobInfo = new Job()
-                .withSalesforceClient(salesforceConnectionClient)
-                .newJob(tableName)
+    public PublishResult publishCsvToTable(InputStream csvInputStream, String targetObjectName) throws AsyncApiException {
+        JobInfo jobInfo = job.withSalesforceClient(salesforceConnectionClient)
+                .newJob(targetObjectName)
                 .setOperation(OperationEnum.insert)
                 .setContentType(ContentType.CSV)
                 .create();
 
-        new Batch()
-                .withSalesforceClient(salesforceConnectionClient)
+        return batch.withSalesforceClient(salesforceConnectionClient)
                 .addJob(jobInfo)
-                .withCsvInputStream(inputStream)
+                .withCsvInputStream(csvInputStream)
                 .createStream()
                 .finaliseJob();
+
     }
 }

@@ -10,17 +10,18 @@ import java.io.InputStream;
 class Batch {
 
     private BatchInfo batchInfo;
-    private JobInfo job;
+    private JobInfo jobInfo;
     private InputStream csvInputStream;
     private SalesforceConnectionClient salesforceConnectionClient;
+    private PublishResult publishResult;
 
 
     Batch(){
         batchInfo = new BatchInfo();
     }
 
-    Batch addJob(JobInfo job) {
-        this.job = job;
+    Batch addJob(JobInfo jobInfo) {
+        this.jobInfo = jobInfo;
         return this;
     }
 
@@ -36,14 +37,25 @@ class Batch {
 
 
     Batch createStream() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(job, csvInputStream);
+        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, csvInputStream);
         return this;
     }
 
-    void finaliseJob() throws AsyncApiException {
-        salesforceConnectionClient
+    PublishResult finaliseJob() throws AsyncApiException {
+
+        jobInfo = salesforceConnectionClient
                 .getSalesForceWebServiceBulkConnection()
-                .closeJob(job.getId());
+                .closeJob(jobInfo.getId());
+        publishResult = new PublishResult(batchInfo, jobInfo);
+        return publishResult;
+    }
+
+    String getStatus() throws AsyncApiException {
+        batchInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .getBatchInfo(batchInfo.getJobId(), batchInfo.getId());
+
+        return String.valueOf(batchInfo.getState());
     }
 }
 

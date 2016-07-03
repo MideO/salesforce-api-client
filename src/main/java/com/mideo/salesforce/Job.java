@@ -1,9 +1,6 @@
 package com.mideo.salesforce;
 
-import com.sforce.async.AsyncApiException;
-import com.sforce.async.ContentType;
-import com.sforce.async.JobInfo;
-import com.sforce.async.OperationEnum;
+import com.sforce.async.*;
 
 
 class Job {
@@ -11,8 +8,8 @@ class Job {
     private JobInfo jobInfo;
     private SalesforceConnectionClient salesforceConnectionClient;
 
-    Job(){
 
+    Job() {
         jobInfo = new JobInfo();
     }
 
@@ -25,6 +22,17 @@ class Job {
         jobInfo.setObject(jobName);
         return this;
     }
+
+    Job forSObject(String sObjectName) {
+        jobInfo.setObject(sObjectName);
+        return this;
+    }
+
+    Job isConcurrent(){
+        jobInfo.setConcurrencyMode(ConcurrencyMode.Parallel);
+        return this;
+    }
+    
 
     Job setOperation(OperationEnum operationEnum) {
         jobInfo.setOperation(operationEnum);
