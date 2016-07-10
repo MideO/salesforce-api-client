@@ -11,7 +11,7 @@ class Batch {
 
     private BatchInfo batchInfo;
     private JobInfo jobInfo;
-    private InputStream csvInputStream;
+    private InputStream inputStream;
     private SalesforceConnectionClient salesforceConnectionClient;
 
 
@@ -29,15 +29,20 @@ class Batch {
         return this;
     }
 
-    Batch withCsvInputStream(InputStream csvInputStream) {
-        this.csvInputStream = csvInputStream;
+    Batch withInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
         return this;
     }
 
 
     Batch createStream() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, csvInputStream);
+        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, inputStream);
         return this;
+    }
+
+    BatchInfo createBatch() throws AsyncApiException {
+        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, inputStream);
+        return batchInfo;
     }
 
     PublishResult finaliseJob() throws AsyncApiException {

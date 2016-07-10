@@ -6,6 +6,8 @@ import com.jayway.restassured.response.Response;
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BulkConnection;
 
+import com.sforce.soap.partner.PartnerConnection;
+import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.mideo.http.HttpRequestSpecificationBuilder;
 
@@ -13,6 +15,7 @@ import com.mideo.http.HttpRequestSpecificationBuilder;
 public class SalesforceConnectionClient {
 
     private static BulkConnection salesForceWebServiceBulkConnection;
+    private static PartnerConnection salesForceWebServicePartnerConnection;
     private final HttpRequestSpecificationBuilder httpRequestSpecificationBuilder;
     private SalesforceConfig salesforceConfig;
 
@@ -42,13 +45,11 @@ public class SalesforceConnectionClient {
                 salesforceConfig.password + salesforceConfig.token);
     }
 
-    private ConnectorConfig getConnectorConfig() {
+    private ConnectorConfig getConnectorConfig(String apiVersion, String apiAsyncPath, String apiSoapPath) {
         JsonPath salesforceSession = getSalesforceSession();
         ConnectorConfig connectorConfig = new ConnectorConfig();
         String instanceUrl = salesforceSession.getString("instance_url");
-        String apiVersion = "36.0";
-        String apiAsyncPath = "/services/async/";
-        String apiSoapPath = "/services/Soap/s/";
+
 
         connectorConfig.setRestEndpoint(instanceUrl + apiAsyncPath + apiVersion);
         connectorConfig.setServiceEndpoint(instanceUrl+ apiSoapPath + apiVersion);
@@ -61,10 +62,26 @@ public class SalesforceConnectionClient {
     }
 
     BulkConnection getSalesForceWebServiceBulkConnection() throws AsyncApiException {
+        String apiVersion = "37.0";
+        String apiAsyncPath = "/services/async/";
+        String apiSoapPath = "/services/Soap/s/";
         if (salesForceWebServiceBulkConnection == null) {
-            salesForceWebServiceBulkConnection = new BulkConnection(getConnectorConfig());
+            ConnectorConfig config = getConnectorConfig(apiVersion, apiAsyncPath, apiSoapPath);
+            salesForceWebServiceBulkConnection = new BulkConnection(config);
         }
         return salesForceWebServiceBulkConnection;
+    }
+
+    PartnerConnection getSalesForceWebServicePartnerConnection() throws ConnectionException {
+
+        String apiVersion = "37.0";
+        String apiAsyncPath = "/services/async/";
+        String apiSoapPath = "/services/Soap/u/";
+        if (salesForceWebServicePartnerConnection == null) {
+            ConnectorConfig config = getConnectorConfig(apiVersion, apiAsyncPath, apiSoapPath);
+            salesForceWebServicePartnerConnection = new PartnerConnection(config);
+        }
+        return salesForceWebServicePartnerConnection;
     }
 
 

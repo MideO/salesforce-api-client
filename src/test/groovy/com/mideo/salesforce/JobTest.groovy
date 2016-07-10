@@ -47,7 +47,7 @@ class JobTest extends Specification {
         when:
             job.withSalesforceClient(mockConnectionClient)
         then:
-        assert job.salesforceConnectionClient== mockConnectionClient
+            assert job.salesforceConnectionClient == mockConnectionClient
 
     }
 
