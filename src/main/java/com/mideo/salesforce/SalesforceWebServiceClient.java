@@ -3,6 +3,7 @@ package com.mideo.salesforce;
 
 import com.sforce.async.*;
 import com.sforce.ws.ConnectionException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class SalesforceWebServiceClient {
 
         List<String> columns = objectDescriber.withSalesforceClient(salesforceConnectionClient)
                 .getDataColumns(targetObjectName);
-        String query = String.format(QUERY_TEMPLATE, String.join(",",columns));
+        String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns,','));
         ByteArrayInputStream soqlInputStream = new ByteArrayInputStream(query.getBytes());
 
 
