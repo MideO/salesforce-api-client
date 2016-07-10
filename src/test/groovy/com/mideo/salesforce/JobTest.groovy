@@ -14,30 +14,30 @@ class JobTest extends Specification {
         given:
             Job job = new Job()
         when:
-            job.newJob("jobby")
+            job.newJobInfo("jobby")
         then:
             assert job.jobInfo.object == "jobby"
 
     }
 
-    def "Should set Operation"() {
+    def "Should set Operation and Content Type for Insertion"() {
         given:
             Job job = new Job()
         when:
-            job.setOperation(OperationEnum.insert)
+            job.toInsert(ContentType.CSV)
         then:
             assert job.jobInfo.operation == OperationEnum.insert
-
+            assert job.jobInfo.contentType== ContentType.CSV
     }
 
-    def "Should Set ContentType"() {
+    def "Should set Operation and Content Type for Query"() {
         given:
             Job job = new Job()
         when:
-            job.setContentType(ContentType.CSV)
+            job.toQuery(ContentType.XML)
         then:
-            assert job.jobInfo.contentType== ContentType.CSV
-
+            assert job.jobInfo.operation == OperationEnum.query
+            assert job.jobInfo.contentType== ContentType.XML
     }
 
     def "Should Set SalesforceClient"() {
@@ -51,21 +51,12 @@ class JobTest extends Specification {
 
     }
 
-    def "Should Set Job sObject"() {
-        given:
-            Job job = new Job()
-
-        when:
-            job.forSObject('Account')
-        then:
-            assert job.jobInfo.object__is_set
-    }
 
     def "Should set Job as Concurrent"() {
         given:
             Job job = new Job();
         when:
-            job.isConcurrent();
+            job.withParallelConcurrentcyMode();
         then:
             assert job.jobInfo.concurrencyMode__is_set
     }
@@ -79,7 +70,7 @@ class JobTest extends Specification {
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
             Job job = new Job()
-                    .newJob("jobby")
+                    .newJobInfo("jobby")
                     .withSalesforceClient(mockConnectionClient)
                     .setOperation(OperationEnum.insert)
                     .setContentType(ContentType.CSV)

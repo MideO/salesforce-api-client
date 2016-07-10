@@ -18,17 +18,12 @@ class Job {
         return this;
     }
 
-    Job newJob(String jobName) {
+    Job newJobInfo(String jobName) {
         jobInfo.setObject(jobName);
         return this;
     }
 
-    Job forSObject(String sObjectName) {
-        jobInfo.setObject(sObjectName);
-        return this;
-    }
-
-    Job isConcurrent(){
+    Job withParallelConcurrentcyMode(){
         jobInfo.setConcurrencyMode(ConcurrencyMode.Parallel);
         return this;
     }
@@ -49,5 +44,18 @@ class Job {
                 .getSalesForceWebServiceBulkConnection()
                 .createJob(jobInfo);
         return jobInfo;
+    }
+
+
+    Job toInsert(ContentType contentType) {
+        jobInfo.setOperation(OperationEnum.insert);
+        jobInfo.setContentType(contentType);
+        return this;
+    }
+
+    Job toQuery(ContentType contentType) {
+        jobInfo.setOperation(OperationEnum.query);
+        jobInfo.setContentType(contentType);
+        return this;
     }
 }
