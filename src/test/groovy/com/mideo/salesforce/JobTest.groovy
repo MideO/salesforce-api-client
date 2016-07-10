@@ -56,7 +56,7 @@ class JobTest extends Specification {
         given:
             Job job = new Job();
         when:
-            job.withParallelConcurrentcyMode();
+            job.withParallelConcurrencyMode();
         then:
             assert job.jobInfo.concurrencyMode__is_set
     }

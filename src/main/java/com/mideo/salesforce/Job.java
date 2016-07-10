@@ -23,7 +23,7 @@ class Job {
         return this;
     }
 
-    Job withParallelConcurrentcyMode(){
+    Job withParallelConcurrencyMode(){
         jobInfo.setConcurrencyMode(ConcurrencyMode.Parallel);
         return this;
     }

@@ -50,9 +50,8 @@ public class SalesforceWebServiceClient {
                 .getBatchInfo(jobId, batchId);
         return String.valueOf(batchInfo.getState());
     }
-    //TODO: Add test
-    //TODO:  use bulk query: see https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_using_bulk_query.htm
-    public List<Map<String, String>> ExportDataFromTable(String targetObjectName) throws AsyncApiException, ConnectionException, IOException {
+
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName) throws AsyncApiException, ConnectionException, IOException {
         String QUERY_TEMPLATE = "SELECT %s FROM "+targetObjectName;
 
         List<String> columns = objectDescriber.withSalesforceClient(salesforceConnectionClient)
@@ -63,7 +62,7 @@ public class SalesforceWebServiceClient {
 
 
         JobInfo jobInfo = job.withSalesforceClient(salesforceConnectionClient)
-                .withParallelConcurrentcyMode()
+                .withParallelConcurrencyMode()
                 .newJobInfo(targetObjectName)
                 .toQuery(ContentType.CSV)
                 .setOperation(OperationEnum.query)
