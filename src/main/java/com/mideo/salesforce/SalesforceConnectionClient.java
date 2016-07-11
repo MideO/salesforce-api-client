@@ -18,6 +18,8 @@ public class SalesforceConnectionClient {
     private static PartnerConnection salesForceWebServicePartnerConnection;
     private final HttpRequestSpecificationBuilder httpRequestSpecificationBuilder;
     private SalesforceConfig salesforceConfig;
+    private String API_VERSION = "36.0";
+    private String API_ASYNC_PATH = "/services/async/";
 
 
     SalesforceConnectionClient(SalesforceConfig salesforceConfig, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
@@ -62,23 +64,18 @@ public class SalesforceConnectionClient {
     }
 
     BulkConnection getSalesForceWebServiceBulkConnection() throws AsyncApiException {
-        String apiVersion = "37.0";
-        String apiAsyncPath = "/services/async/";
         String apiSoapPath = "/services/Soap/s/";
         if (salesForceWebServiceBulkConnection == null) {
-            ConnectorConfig config = getConnectorConfig(apiVersion, apiAsyncPath, apiSoapPath);
+            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, apiSoapPath);
             salesForceWebServiceBulkConnection = new BulkConnection(config);
         }
         return salesForceWebServiceBulkConnection;
     }
 
     PartnerConnection getSalesForceWebServicePartnerConnection() throws ConnectionException {
-
-        String apiVersion = "37.0";
-        String apiAsyncPath = "/services/async/";
         String apiSoapPath = "/services/Soap/u/";
         if (salesForceWebServicePartnerConnection == null) {
-            ConnectorConfig config = getConnectorConfig(apiVersion, apiAsyncPath, apiSoapPath);
+            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, apiSoapPath);
             salesForceWebServicePartnerConnection = new PartnerConnection(config);
         }
         return salesForceWebServicePartnerConnection;

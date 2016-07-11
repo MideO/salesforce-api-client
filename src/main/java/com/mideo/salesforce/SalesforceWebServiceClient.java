@@ -52,10 +52,14 @@ public class SalesforceWebServiceClient {
     }
 
     public List<Map<String, String>> exportDataFromTable(String targetObjectName) throws AsyncApiException, ConnectionException, IOException {
-        String QUERY_TEMPLATE = "SELECT %s FROM "+targetObjectName;
-
         List<String> columns = objectDescriber.withSalesforceClient(salesforceConnectionClient)
                 .getDataColumns(targetObjectName);
+        return exportDataFromTable(targetObjectName, columns);
+    }
+
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns) throws AsyncApiException, ConnectionException, IOException {
+        String QUERY_TEMPLATE = "SELECT %s FROM "+targetObjectName;
+
         String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns,','));
         ByteArrayInputStream soqlInputStream = new ByteArrayInputStream(query.getBytes());
 
@@ -76,6 +80,6 @@ public class SalesforceWebServiceClient {
 
 
         return dataFetcher.withSalesforceClient(salesforceConnectionClient)
-                        .fetchData(jobInfo.getId(), batchInfo.getId());
+                .fetchData(jobInfo.getId(), batchInfo.getId());
     }
 }

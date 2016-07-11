@@ -41,10 +41,10 @@ class SalesforceConnectionClientTest extends Specification {
             BulkConnection bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()
 
         then:
-            assert bulkConnection.config.getRestEndpoint() == "test_url.com/services/async/37.0"
+            assert bulkConnection.config.getRestEndpoint() == "test_url.com/services/async/36.0"
             assert bulkConnection.config.getSessionId() == "1234567"
-            assert bulkConnection.config.getAuthEndpoint() == "test_url.com/services/Soap/s/37.0"
-            assert bulkConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/s/37.0"
+            assert bulkConnection.config.getAuthEndpoint() == "test_url.com/services/Soap/s/36.0"
+            assert bulkConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/s/36.0"
             assert bulkConnection.config.compression
             assert !bulkConnection.config.traceMessage
     }
@@ -79,10 +79,10 @@ class SalesforceConnectionClientTest extends Specification {
             PartnerConnection partnerConnection = connectionClient.getSalesForceWebServicePartnerConnection()
 
         then:
-            assert partnerConnection.config.getRestEndpoint() == "test_url.com/services/async/37.0"
+            assert partnerConnection.config.getRestEndpoint() == "test_url.com/services/async/36.0"
             assert partnerConnection.config.getSessionId() == "1234567"
-            assert partnerConnection.config.getAuthEndpoint() == "test_url.com/services/Soap/u/37.0"
-            assert partnerConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/u/37.0"
+            assert partnerConnection.config.getAuthEndpoint() == "test_url.com/services/Soap/u/36.0"
+            assert partnerConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/u/36.0"
             assert partnerConnection.config.compression
             assert !partnerConnection.config.traceMessage
     }
