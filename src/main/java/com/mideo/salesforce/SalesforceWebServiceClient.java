@@ -95,7 +95,7 @@ public class SalesforceWebServiceClient {
         List<String> columns = SObjectApi.withSalesforceClient(salesforceConnectionClient)
                 .getDataColumns(targetObjectName);
 
-        return exportDataFromTable(targetObjectName, columns, new HashMap<>());
+        return exportDataFromTable(targetObjectName, columns, new HashMap<String, String>());
     }
 
     /**
@@ -115,7 +115,7 @@ public class SalesforceWebServiceClient {
      *     webClient.exportDataFromTable("Account", columns);<br >
      **/
     public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns) throws AsyncApiException, ConnectionException, IOException {
-        return exportDataFromTable(targetObjectName, columns, new HashMap<>());
+        return exportDataFromTable(targetObjectName, columns, new HashMap<String, String>());
     }
 
     /**
