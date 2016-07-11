@@ -8,7 +8,7 @@ class HttpRequestSpecificationBuilderTest extends Specification {
     def "Should Return Request Specification"() {
 
         given:
-            RequestSpecification requestSpecification
+            RequestSpecification requestSpecification;
             HttpRequestSpecificationBuilder httpRequestSpecBuilder = new HttpRequestSpecificationBuilder();
 
         when:

@@ -5,7 +5,7 @@ import com.sforce.async.QueryResultList;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.IOUtils;
+
 
 
 import java.io.IOException;
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 
-public class DataFetcher {
+class DataFetcher {
     private SalesforceConnectionClient salesforceConnectionClient;
 
-    public DataFetcher withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient) {
+    DataFetcher withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient) {
         this.salesforceConnectionClient = salesforceConnectionClient;
         return this;
     }
 
-    public List<Map<String,String>> fetchData(String jobInfoId, String batchinfoId) throws AsyncApiException, IOException {
+    List<Map<String,String>> fetchData(String jobInfoId, String batchinfoId) throws AsyncApiException, IOException {
 
         List<Map<String, String>> rows = new ArrayList<>();
         QueryResultList queryResultList = salesforceConnectionClient
