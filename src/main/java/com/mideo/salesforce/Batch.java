@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 class Batch {
 
-    private BatchInfo batchInfo;
+    BatchInfo batchInfo;
     private JobInfo jobInfo;
     private InputStream inputStream;
     private SalesforceConnectionClient salesforceConnectionClient;
@@ -26,6 +26,7 @@ class Batch {
 
     Batch withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
         this.salesforceConnectionClient = salesforceConnectionClient;
+        batchInfo = new BatchInfo();
         return this;
     }
 
@@ -51,6 +52,13 @@ class Batch {
                 .getSalesForceWebServiceBulkConnection()
                 .closeJob(jobInfo.getId());
         return new PublishResult(batchInfo, jobInfo);
+    }
+
+    public String getBatchStatus(String jobId, String batchId) throws AsyncApiException {
+        batchInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .getBatchInfo(jobId, batchId);
+        return batchInfo.getState().name();
     }
 }
 

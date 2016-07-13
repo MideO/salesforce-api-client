@@ -22,29 +22,20 @@ public class SalesforceConnectionClient {
     private String API_ASYNC_PATH = "/services/async/";
 
 
-    SalesforceConnectionClient(SalesforceConfig salesforceConfig, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
+    public SalesforceConnectionClient(SalesforceConfig salesforceConfig, HttpRequestSpecificationBuilder httpRequestSpecificationBuilder) {
         this.salesforceConfig = salesforceConfig;
         this.httpRequestSpecificationBuilder = httpRequestSpecificationBuilder;
     }
 
 
     private JsonPath getSalesforceSession() {
-        String formData = buildLoginPayload();
+
         String oauthPath = "/services/oauth2/token";
         Response response = httpRequestSpecificationBuilder.build().baseUri(salesforceConfig.loginUrl)
-                .body(formData)
+                .body(salesforceConfig.toString())
                 .header(new Header("Content-Type", "application/x-www-form-urlencoded"))
                 .post(oauthPath);
-        return new JsonPath(response.body().asString());
-    }
-
-    private String buildLoginPayload() {
-        String loginFormTemplate = "grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
-        return String.format(loginFormTemplate,
-                salesforceConfig.clientId,
-                salesforceConfig.clientSecret,
-                salesforceConfig.username.replace("@", "%40"),
-                salesforceConfig.password + salesforceConfig.token);
+        return new JsonPath(response.print());
     }
 
     private ConnectorConfig getConnectorConfig(String apiVersion, String apiAsyncPath, String apiSoapPath) {

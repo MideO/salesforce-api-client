@@ -23,11 +23,25 @@ public class SalesforceWebServiceClient {
     private DataFetcher dataFetcher;
     private SObjectApi SObjectApi;
 
+
+
+    private long publishStatusCheckTimeout = 10000;
+
+    /**
+     *
+     * @param publishStatusCheckTimeoutInMilliSeconds - Polling timeout in milliseconds
+     * @return SalesforceWebServiceClient
+     */
+    public SalesforceWebServiceClient setPublishStatusCheckTimeout(long publishStatusCheckTimeoutInMilliSeconds) {
+        this.publishStatusCheckTimeout = publishStatusCheckTimeoutInMilliSeconds;
+        return this;
+    }
+
     /**
      *  @param salesforceConnectionClient Initiated Salesforce Connection client
      *
      *  <br >Usage:<br >
-     *     SalesforceConfig config = new SalesforceConfig("http://a.com","bghghg","67667","foo@bar.com","test1234","hghsd");<br >
+     *     SalesforceConfig config = new SalesforceConfig("abc").clientId("wewew").clientSecret("dfdfd").userName("sdsds").password("sdsds").userToken("sdssd");<br >
      *     HttpRequestSpecificationBuilder httpRequestSpecificationBuilder = new HttpRequestSpecificationBuilder();<br >
      *     SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, httpRequestSpecificationBuilder);<br >
      *     SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);<br >
@@ -74,10 +88,9 @@ public class SalesforceWebServiceClient {
      * @throws AsyncApiException Saleforce Api AsyncApiException
      **/
     public String getPublishedDataStatus(String jobId, String batchId) throws AsyncApiException {
-        BatchInfo batchInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
-                .getBatchInfo(jobId, batchId);
-        return String.valueOf(batchInfo.getState());
+        return batch.withSalesforceClient(salesforceConnectionClient)
+                .getBatchStatus(jobId, batchId);
+
     }
 
 
@@ -91,7 +104,7 @@ public class SalesforceWebServiceClient {
      * @throws ConnectionException Saleforce Api ConnectionException
      * @throws IOException Java IOException
      **/
-    public List<Map<String, String>> exportDataFromTable(String targetObjectName) throws AsyncApiException, ConnectionException, IOException {
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName) throws Exception {
         List<String> columns = SObjectApi.withSalesforceClient(salesforceConnectionClient)
                 .getDataColumns(targetObjectName);
 
@@ -114,7 +127,7 @@ public class SalesforceWebServiceClient {
      *     columns.add("Id");<br>
      *     webClient.exportDataFromTable("Account", columns);<br >
      **/
-    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns) throws AsyncApiException, ConnectionException, IOException {
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns) throws Exception {
         return exportDataFromTable(targetObjectName, columns, new HashMap<String, String>());
     }
 
@@ -129,7 +142,7 @@ public class SalesforceWebServiceClient {
      * @throws ConnectionException Saleforce Api ConnectionException
      * @throws IOException Java IOException
      **/
-    public List<Map<String, String>> exportDataFromTable(String targetObjectName, Map<String, String> filters) throws AsyncApiException, ConnectionException, IOException {
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName, Map<String, String> filters) throws Exception {
         List<String> columns = SObjectApi.withSalesforceClient(salesforceConnectionClient)
                 .getDataColumns(targetObjectName);
 
@@ -154,14 +167,14 @@ public class SalesforceWebServiceClient {
      *     filters.put("id", "abc123");<br>
      *     webClient.exportDataFromTable("Account", columns);<br >
      **/
-    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns, Map<String, String> filters) throws AsyncApiException, ConnectionException, IOException, NullPointerException {
+    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns, Map<String, String> filters) throws Exception{
         String QUERY_TEMPLATE = "SELECT %s FROM "+targetObjectName;
         List<String> filterList = new ArrayList<>();
 
-        for (Map.Entry entry: filters.entrySet()){
-            filterList.add(String.format("%s=\"%s\"", entry.getKey(), entry.getValue()));
+        for (Map.Entry entry: filters.entrySet()) {
+            filterList.add(String.format("%s='%s'", entry.getKey(), entry.getValue()));
         }
-        QUERY_TEMPLATE += StringUtils.join(filterList, ',');
+        QUERY_TEMPLATE += filterList.size() == 0? "": " WHERE "+StringUtils.join(filterList, ',');
 
         String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns,','));
         ByteArrayInputStream soqlInputStream = new ByteArrayInputStream(query.getBytes());
@@ -181,10 +194,24 @@ public class SalesforceWebServiceClient {
                 .withInputStream(soqlInputStream)
                 .createBatch();
 
+        long counter = 0;
+        long sleeptime = 1000;
 
-        return dataFetcher.withSalesforceClient(salesforceConnectionClient)
-                .fetchData(jobInfo.getId(), batchInfo.getId());
+        while(counter <= publishStatusCheckTimeout){
+            if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Completed.name())){
+                return dataFetcher.withSalesforceClient(salesforceConnectionClient)
+                        .fetchData(jobInfo.getId(), batchInfo.getId());
+            }
+            if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Failed.name())){
 
+                throw new FailedBulkOperationException("Salesforce Bulk Api Operation Failed: \n" + batch.batchInfo);
+            }
+            Thread.sleep(sleeptime);
+            counter+=sleeptime;
+
+        }
+
+        return null;
     }
 
 

@@ -1,25 +1,55 @@
 package com.mideo.salesforce;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class SalesforceConfig {
     String loginUrl;
     String clientId;
     String clientSecret;
-    String username;
+    String user;
     String password;
     String token;
 
-    public SalesforceConfig(String loginUrl,
-                            String clientId,
-                            String clientSecret,
-                            String username,
-                            String password,
-                            String token) {
+    public SalesforceConfig(String loginUrl) {
         this.loginUrl = loginUrl;
+    }
+
+    public SalesforceConfig clientId(String clientId) {
         this.clientId = clientId;
+        return this;
+    }
+
+    public SalesforceConfig clientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
-        this.username = username;
+        return this;
+    }
+
+    public SalesforceConfig userName(String user) {
+        this.user = user;
+        return this;
+    }
+
+    public SalesforceConfig password(String password) {
         this.password = password;
+        return this;
+    }
+
+    public SalesforceConfig userToken(String token) {
         this.token = token;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+
+        String config = "grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s";
+        try {
+            config = String.format(config, clientId, clientSecret, URLEncoder.encode(user, "UTF-8"), password + token);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return config;
     }
 }

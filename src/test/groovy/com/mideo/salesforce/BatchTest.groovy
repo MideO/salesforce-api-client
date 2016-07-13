@@ -99,4 +99,21 @@ class BatchTest extends Specification {
 
 
     }
+
+
+    def "Should return get batch status"() {
+        given:
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
+            BulkConnection mockBulkConnection = Mock(BulkConnection);
+            BatchInfo mockBatchInfo = Mock(BatchInfo);
+            Batch batch  = new Batch().withSalesforceClient(mockConnectionClient);
+
+        when:
+            mockBatchInfo.getState() >> BatchStateEnum.Failed;
+            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
+            mockBulkConnection.getBatchInfo(_,_) >> mockBatchInfo;
+        then:
+            assert batch.getBatchStatus("abc","123") == "Failed";
+
+    }
 }

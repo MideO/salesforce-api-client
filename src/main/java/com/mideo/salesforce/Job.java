@@ -15,6 +15,7 @@ class Job {
 
     Job withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
         this.salesforceConnectionClient = salesforceConnectionClient;
+        jobInfo = new JobInfo();
         return this;
     }
 
