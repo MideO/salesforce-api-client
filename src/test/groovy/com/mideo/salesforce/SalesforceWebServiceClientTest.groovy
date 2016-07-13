@@ -310,6 +310,7 @@ class SalesforceWebServiceClientTest extends Specification {
         then:
             assert result.size() == 1;
             assert result[0].get("fruit") == "orange";
+            assert webServiceClient.publishStatusCheckTimeout == 30000;
     }
 
     def "Should create Object"() {

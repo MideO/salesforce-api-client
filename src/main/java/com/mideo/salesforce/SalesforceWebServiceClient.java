@@ -233,8 +233,9 @@ public class SalesforceWebServiceClient {
         long counter = 0;
         long sleeptime = 1000;
 
-        while (counter <= publishStatusCheckTimeout) {
+        try{while (counter <= publishStatusCheckTimeout) {
             if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Completed.name())) {
+
                 return dataFetcher.withSalesforceClient(salesforceConnectionClient)
                         .fetchData(jobInfo.getId(), batchInfo.getId());
             }
@@ -244,6 +245,8 @@ public class SalesforceWebServiceClient {
             }
             counter += sleeptime;
             Thread.sleep(sleeptime);
+        }}finally {
+            publishStatusCheckTimeout = 30000;
         }
 
         throw new FailedBulkOperationException("Salesforce Bulk Api Operation timedOut after "+counter+" Milliseconds \n" + batch.batchInfo);
