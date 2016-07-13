@@ -1,6 +1,7 @@
 package com.mideo.salesforce;
 
 
+import com.sforce.soap.partner.DeleteResult;
 import com.sforce.soap.partner.Field;
 import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
@@ -70,7 +71,7 @@ class SObjectApi {
         //get data columns
         List<String> columns = getDataColumns(sObjectName);
 
-        //perform retrieve
+        //perform retrieveObject
         SObject[] sObjects = salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
                 .retrieve(StringUtils.join(columns, ','), sObjectName, new String[]{id});
@@ -81,5 +82,16 @@ class SObjectApi {
             resultMap.put(column, sObjects[0].getField(column));
         }
         return resultMap;
+    }
+
+
+    String deleteSObject(String id) throws ConnectionException {
+
+        //perform retrieveObject
+        DeleteResult[] deleteResults = salesforceConnectionClient
+                .getSalesForceWebServicePartnerConnection()
+                .delete(new String[]{id});
+        // return result ID
+        return deleteResults[0].getId();
     }
 }

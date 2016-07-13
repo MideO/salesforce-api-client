@@ -1,5 +1,6 @@
 package com.mideo.salesforce
 
+import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.SaveResult
@@ -111,6 +112,26 @@ class sObjectApiTest extends Specification {
 
         then:
             assert resultMap.get("car") == "Fiat Panda";
+    }
+
+
+    def "Should Delete SObject"() {
+        given:
+            SObjectApi objectApi = new SObjectApi();
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
+            PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
+            String id = "fakeid";
+            DeleteResult deleteResult= new DeleteResult( id: "fakeId");
+            DeleteResult[] deleteResults= [deleteResult];
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.delete(_) >> deleteResults;
+
+            String Id =  objectApi.withSalesforceClient(mockConnectionClient).deleteSObject(id);
+
+        then:
+            assert Id == "fakeId";
     }
 
 }

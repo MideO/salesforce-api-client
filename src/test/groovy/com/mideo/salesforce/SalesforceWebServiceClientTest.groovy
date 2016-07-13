@@ -6,6 +6,7 @@ import com.sforce.async.BulkConnection
 import com.sforce.async.JobInfo
 import com.sforce.async.JobStateEnum
 import com.sforce.async.QueryResultList
+import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.Field
 import com.sforce.soap.partner.PartnerConnection
@@ -375,10 +376,30 @@ class SalesforceWebServiceClientTest extends Specification {
             String[] ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
 
-            Map<String, Objects> resultMap  = webServiceClient.retrieve("Mide", "fakeId");
+            Map<String, Objects> resultMap  = webServiceClient.retrieveObject("Mide", "fakeId");
 
 
         then:
             assert resultMap.get("car").toString() == "Fiat Panda";
+    }
+
+    def "Should delete Object"() {
+        given:
+
+            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
+            PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
+            DeleteResult deleteResult= new DeleteResult( id: "fakeId");
+            DeleteResult[] deleteResults = [deleteResult];
+            SalesforceWebServiceClient webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            String id = "evenFakerId";
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.delete(_) >> deleteResult;
+            String resultID =  webServiceClient.deleteObject(id);
+
+
+        then:
+            assert resultID == "fakeId";
     }
 }

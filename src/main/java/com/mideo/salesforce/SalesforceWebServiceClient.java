@@ -22,7 +22,7 @@ public class SalesforceWebServiceClient {
     private Batch batch;
     private DataFetcher dataFetcher;
     private SObjectApi SObjectApi;
-    private long publishStatusCheckTimeout = 10000;
+    private long publishStatusCheckTimeout = 30000;
 
     /**
      * @param salesforceConnectionClient Initiated Salesforce Connection client
@@ -103,7 +103,7 @@ public class SalesforceWebServiceClient {
      * @param sObjectName Salesforce Object Name
      * @param data        key value pair for each data column to be populated
      * @param id          Salesforce Object Id
-     * @return String value of created Object Id
+     * @return String value of updated Object Id
      * @throws ConnectionException <br >Usage:<br >
      *                             Map&lt;String, Object&gt; accountDataMap = new HashMap&lt;String, String&gt;();<br>
      *                             accountDataMap.put("Name", "testName Surname");<br>
@@ -115,6 +115,19 @@ public class SalesforceWebServiceClient {
                 .updateSObject(sObjectName, id, data);
     }
 
+    /**
+     * @param id          Salesforce Object Id
+     * @return String value of deleted Object Id
+     * @throws ConnectionException <br >Usage:<br >
+     *                             Map&lt;String, Object&gt; accountDataMap = new HashMap&lt;String, String&gt;();<br>
+     *                             accountDataMap.put("Name", "testName Surname");<br>
+     *                             accountDataMap.put("email", "testName@example.com");<br>
+     *                             webClient.updateObject("Account", accountDataMap)<br>
+     **/
+    public String deleteObject(String id) throws ConnectionException {
+        return SObjectApi.withSalesforceClient(salesforceConnectionClient)
+                .deleteSObject(id);
+    }
 
     /**
      * @param sObjectName Salesforce Object Name
@@ -123,7 +136,7 @@ public class SalesforceWebServiceClient {
      * @throws ConnectionException <br >Usage: <br >
      *                             webClient.retrieveSObject("Account", OjectId)
      **/
-    public Map<String, Object> retrieve(String sObjectName, String id) throws ConnectionException {
+    public Map<String, Object> retrieveObject(String sObjectName, String id) throws ConnectionException {
         return SObjectApi.withSalesforceClient(salesforceConnectionClient)
                 .retrieveSObject(sObjectName, id);
     }
@@ -145,7 +158,7 @@ public class SalesforceWebServiceClient {
 
     /**
      * @param targetObjectName Salesforce Object Name
-     * @param columns          Columns to retrieve
+     * @param columns          Columns to retrieveObject
      * @return List of Maps representing each data row
      * @throws AsyncApiException   Saleforce Api AsyncApiException
      * @throws ConnectionException Saleforce Api ConnectionException
@@ -177,7 +190,7 @@ public class SalesforceWebServiceClient {
 
     /**
      * @param targetObjectName Salesforce Object Name
-     * @param columns          Columns to retrieve
+     * @param columns          Columns to retrieveObject
      * @param filters          - Map of filters
      * @return List of Maps representing each data row
      * @throws AsyncApiException   Saleforce Api AsyncApiException
@@ -229,11 +242,10 @@ public class SalesforceWebServiceClient {
 
                 throw new FailedBulkOperationException("Salesforce Bulk Api Operation Failed: \n" + batch.batchInfo);
             }
-            Thread.sleep(sleeptime);
             counter += sleeptime;
-
+            Thread.sleep(sleeptime);
         }
 
-        return null;
+        throw new FailedBulkOperationException("Salesforce Bulk Api Operation timedOut after "+counter+" Milliseconds \n" + batch.batchInfo);
     }
 }
