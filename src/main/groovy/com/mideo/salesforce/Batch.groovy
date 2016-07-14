@@ -7,10 +7,10 @@ import com.sforce.async.JobInfo;
 
 class Batch {
 
-    BatchInfo batchInfo;
-    JobInfo jobInfo;
-    InputStream inputStream;
-    SalesforceConnectionClient salesforceConnectionClient;
+    def batchInfo;
+    def jobInfo;
+    def inputStream;
+    def salesforceConnectionClient;
 
     Batch addJob(JobInfo jobInfo) {
         batchInfo = new BatchInfo();

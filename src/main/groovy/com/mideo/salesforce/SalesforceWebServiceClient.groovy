@@ -1,7 +1,8 @@
 package com.mideo.salesforce;
 
 
-import com.sforce.async.*;
+import com.sforce.async.*
+import com.sforce.soap.apex.ExecuteAnonymousResult;
 import com.sforce.ws.ConnectionException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,6 +59,22 @@ public class SalesforceWebServiceClient {
     public SalesforceWebServiceClient setPublishStatusCheckTimeout(long publishStatusCheckTimeoutInMilliSeconds) {
         this.publishStatusCheckTimeout = publishStatusCheckTimeoutInMilliSeconds;
         return this;
+    }
+
+
+    /**
+     * @param apexCode - apex code to execute
+     * @return
+     */
+    public ExecuteAnonymousResult executeApexBlock(String apexCode) {
+        def result = SObjectApi.executeApexBlock(apexCode)
+        if (!result.getSuccess())
+            throw new SalesforceApiOperationException(
+                    "${result.compileProblem}\n${result.exceptionMessage}\n${result.exceptionStackTrace}"
+            )
+        return result;
+
+
     }
 
     /**
@@ -212,7 +229,7 @@ public class SalesforceWebServiceClient {
                 .createBatch();
 
         long counter = 0;
-        long sleeptime = 1000;
+        long sleepTime = 1000;
 
         try{
             while (counter <= publishStatusCheckTimeout) {
@@ -222,14 +239,14 @@ public class SalesforceWebServiceClient {
             }
             if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Failed.name())) {
 
-                throw new FailedBulkOperationException("Salesforce Bulk Api Operation Failed: \n" + batch.batchInfo);
+                throw new SalesforceApiOperationException("Salesforce Bulk Api Operation Failed: \n" + batch.batchInfo);
             }
-            counter += sleeptime;
-            Thread.sleep(sleeptime);
+            counter += sleepTime;
+            Thread.sleep(sleepTime);
         }}finally {
             publishStatusCheckTimeout = 30000;
         }
 
-        throw new FailedBulkOperationException("Salesforce Bulk Api Operation timedOut after "+counter+" Milliseconds \n" + batch.batchInfo);
+        throw new SalesforceApiOperationException("Salesforce Bulk Api Operation timedOut after "+counter+" Milliseconds \n" + batch.batchInfo);
     }
 }

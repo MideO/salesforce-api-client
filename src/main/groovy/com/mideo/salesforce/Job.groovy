@@ -5,8 +5,8 @@ import com.sforce.async.*;
 
 class Job {
 
-    JobInfo jobInfo = new JobInfo();
-    SalesforceConnectionClient salesforceConnectionClient;
+    def jobInfo = new JobInfo();
+    def salesforceConnectionClient;
 
     Job newJobInfo(String jobName) {
         jobInfo = new JobInfo();

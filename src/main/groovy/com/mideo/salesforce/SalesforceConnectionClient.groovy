@@ -4,8 +4,8 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSpecification;
 import com.sforce.async.AsyncApiException;
-import com.sforce.async.BulkConnection;
-
+import com.sforce.async.BulkConnection
+import com.sforce.soap.apex.SoapConnection;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig
@@ -16,6 +16,7 @@ public class SalesforceConnectionClient {
 
     private static BulkConnection salesForceWebServiceBulkConnection;
     private static PartnerConnection salesForceWebServicePartnerConnection;
+    private static SoapConnection salesforceSoapConnection;
     private final RequestSpecification requestSpecification;
     private SalesforceConfig salesforceConfig;
     private String API_VERSION = "36.0";
@@ -66,6 +67,15 @@ public class SalesforceConnectionClient {
             salesForceWebServicePartnerConnection = new PartnerConnection(config);
         }
         return salesForceWebServicePartnerConnection;
+    }
+
+    SoapConnection getSalesforceSoapConnection(){
+        if (salesforceSoapConnection == null) {
+            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, "/services/Soap/s/");
+            salesforceSoapConnection = new SoapConnection(config);
+        }
+        return salesforceSoapConnection
+
     }
 
 

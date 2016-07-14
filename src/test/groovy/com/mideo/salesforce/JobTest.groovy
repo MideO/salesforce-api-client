@@ -47,7 +47,7 @@ class JobTest extends Specification {
         when:
             job.withParallelConcurrencyMode();
         then:
-            assert job.jobInfo.concurrencyMode__is_set
+            assert job.jobInfo.getConcurrencyMode()
     }
     def "Should Create JobInfo"() {
         given:

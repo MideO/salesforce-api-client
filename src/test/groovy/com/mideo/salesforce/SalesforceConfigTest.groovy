@@ -6,7 +6,7 @@ class SalesforceConfigTest extends Specification {
 
     def "Should return config string"() {
         when:
-            SalesforceConfig config = new SalesforceConfig("abc")
+            def config = new SalesforceConfig("abc")
                     .clientId("wewew")
                     .clientSecret("dfdfd")
                     .userName("sdsds")

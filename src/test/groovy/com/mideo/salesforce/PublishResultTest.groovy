@@ -8,9 +8,9 @@ import spock.lang.Specification
 
 
 class PublishResultTest extends Specification {
-    PublishResult publishResult;
-    BatchInfo batchInfo;
-    JobInfo jobInfo;
+    def publishResult;
+    def batchInfo;
+    def jobInfo;
 
     def setup(){
         batchInfo = new BatchInfo();

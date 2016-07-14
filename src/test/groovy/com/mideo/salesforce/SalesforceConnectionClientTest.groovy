@@ -5,7 +5,7 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.response.Header
 import com.mideo.http.HttpRequestSpecificationBuilder
 import com.sforce.async.BulkConnection
-
+import com.sforce.soap.apex.SoapConnection
 import com.sforce.soap.partner.PartnerConnection
 import spock.lang.Specification
 
@@ -14,14 +14,14 @@ class SalesforceConnectionClientTest extends Specification {
 
     def "Should return BulkConnection"() {
         given:
-            RequestSpecification mockRequestSpecification = Mock(RequestSpecification)
-            SalesforceConfig config = new SalesforceConfig("http://test.salesforce.com")
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def config = new SalesforceConfig("http://test.salesforce.com")
                     .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
                     .clientSecret("6513759911120645968")
                     .userName("foo@bar.com")
                     .password("test1234")
                     .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
-            String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
+            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
 
 
         when:
@@ -30,8 +30,8 @@ class SalesforceConnectionClientTest extends Specification {
             mockRequestSpecification.body(config.toString()) >> mockRequestSpecification
             mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
             mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
-            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
-            BulkConnection bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()
+            def connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
+            def bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()
 
         then:
             assert bulkConnection.config.getRestEndpoint() == "test_url.com/services/async/36.0"
@@ -45,14 +45,14 @@ class SalesforceConnectionClientTest extends Specification {
     def "Should return PartnerConnection"() {
         given:
 
-            RequestSpecification mockRequestSpecification = Mock(RequestSpecification)
-            SalesforceConfig config = new SalesforceConfig("http://test.salesforce.com")
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def config = new SalesforceConfig("http://test.salesforce.com")
                 .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
                 .clientSecret("6513759911120645968")
                 .userName("foo@bar.com")
                 .password("test1234")
                 .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
-            String mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
+            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
 
 
         when:
@@ -61,8 +61,8 @@ class SalesforceConnectionClientTest extends Specification {
             mockRequestSpecification.body(config.toString()) >> mockRequestSpecification
             mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
             mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
-            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
-            PartnerConnection partnerConnection = connectionClient.getSalesForceWebServicePartnerConnection()
+            def connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
+            def partnerConnection = connectionClient.getSalesForceWebServicePartnerConnection()
 
         then:
             assert partnerConnection.config.getRestEndpoint() == "test_url.com/services/async/36.0"
@@ -71,6 +71,37 @@ class SalesforceConnectionClientTest extends Specification {
             assert partnerConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/u/36.0"
             assert partnerConnection.config.compression
             assert !partnerConnection.config.traceMessage
+    }
+
+    def "Should return SoapConnection"() {
+        given:
+
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def config = new SalesforceConfig("http://test.salesforce.com")
+                .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
+                .clientSecret("6513759911120645968")
+                .userName("foo@bar.com")
+                .password("test1234")
+                .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
+            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
+
+
+        when:
+
+            mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
+            mockRequestSpecification.body(config.toString()) >> mockRequestSpecification
+            mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
+            mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
+            def connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
+            def soapConnection = connectionClient.getSalesforceSoapConnection()
+
+        then:
+            assert soapConnection.config.getRestEndpoint() == "test_url.com/services/async/36.0"
+            assert soapConnection.config.getSessionId() == "1234567"
+            assert soapConnection.config.getAuthEndpoint() == "test_url.com/services/Soap/s/36.0"
+            assert soapConnection.config.getServiceEndpoint() == "test_url.com/services/Soap/s/36.0"
+            assert soapConnection.config.compression
+            assert !soapConnection.config.traceMessage
     }
 }
 

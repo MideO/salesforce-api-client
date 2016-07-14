@@ -3,7 +3,6 @@ package com.mideo.salesforce
 import com.sforce.async.BulkConnection
 
 import com.sforce.async.QueryResultList
-import org.apache.commons.csv.CSVParser
 import spock.lang.Specification
 
 
@@ -11,14 +10,14 @@ class DataFetcherTest extends Specification {
 
     def "Should fetch Data from salesforce Table"() {
         given:
-            String jobInfoId = '123';
-            String batchinfoId = 'abc';
-            String resultId= 'z1x';
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
-            DataFetcher dataFetcher = new DataFetcher(salesforceConnectionClient: mockConnectionClient);
-            BulkConnection mockBulkConnection = Mock(BulkConnection);
-            QueryResultList mockQueryResultList =  Mock(QueryResultList);
-            InputStream inputStream = new ByteArrayInputStream('"carbs","protein"\r\n"bread","chicken"\r\n"pasta","eggs"'.getBytes());
+            def jobInfoId = '123';
+            def batchinfoId = 'abc';
+            def resultId= 'z1x';
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def dataFetcher = new DataFetcher(salesforceConnectionClient: mockConnectionClient);
+            def mockBulkConnection = Mock(BulkConnection);
+            def mockQueryResultList =  Mock(QueryResultList);
+            def inputStream = new ByteArrayInputStream('"carbs","protein"\r\n"bread","chicken"\r\n"pasta","eggs"'.getBytes());
 
 
         when:
