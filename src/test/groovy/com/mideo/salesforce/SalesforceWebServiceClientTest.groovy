@@ -377,7 +377,7 @@ class SalesforceWebServiceClientTest extends Specification {
             String[] ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
 
-            Map<String, Objects> resultMap  = webServiceClient.retrieveObject("Mide", "fakeId");
+            Map<String, Object> resultMap  = webServiceClient.retrieveObject("Mide", "fakeId");
 
 
         then:
@@ -390,7 +390,6 @@ class SalesforceWebServiceClientTest extends Specification {
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
             DeleteResult deleteResult= new DeleteResult( id: "fakeId");
-            DeleteResult[] deleteResults = [deleteResult];
             SalesforceWebServiceClient webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             String id = "evenFakerId";
 

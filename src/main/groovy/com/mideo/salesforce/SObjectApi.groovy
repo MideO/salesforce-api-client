@@ -1,44 +1,30 @@
 package com.mideo.salesforce;
 
-
-import com.sforce.soap.partner.DeleteResult;
-import com.sforce.soap.partner.Field;
-import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 class SObjectApi {
-    private SalesforceConnectionClient salesforceConnectionClient;
+    SalesforceConnectionClient salesforceConnectionClient;
 
-    SObjectApi withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient) {
-        this.salesforceConnectionClient = salesforceConnectionClient;
-        return this;
-    }
 
-    private SObject[] buildSObject(SObject sObject, Map<String, Object> data) {
+    static SObject[] buildSObject(SObject sObject, Map<String, Object> data) {
         for(Map.Entry entry: data.entrySet()){
             sObject.setSObjectField(entry.getKey().toString(), entry.getValue());
         }
-        return new SObject[]{sObject};
+
+        data.each {k,v -> sObject.setSObjectField(k,v)};
+
+        return [sObject]
     }
 
     List<String> getDataColumns(String targetObjectName) throws ConnectionException {
-        Field[] fields = salesforceConnectionClient
+        return  salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
                 .describeSObject(targetObjectName)
-                .getFields();
-
-        List<String> fieldNames = new ArrayList<>();
-        for (Field field : fields) {
-            fieldNames.add(field.getName());
-        }
-        return fieldNames;
+                .getFields().collect {
+                it.getName()
+            }
     }
 
     String createSObject(String sObjectName, Map<String, Object> data) throws ConnectionException {
@@ -46,12 +32,11 @@ class SObjectApi {
         SObject sObject = new SObject(sObjectName);
         SObject[] sObjects = buildSObject(sObject, data);
         // perform Create
-        SaveResult[] saveResult = salesforceConnectionClient
+        return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .create(sObjects);
+                .create(sObjects).first().getId();
 
-        // return result ID
-        return saveResult[0].getId();
+
     }
 
     String updateSObject(String sObjectName, String id, Map<String, Object> data) throws ConnectionException {
@@ -60,11 +45,9 @@ class SObjectApi {
         sObject.setId(id);
         SObject[] sObjects = buildSObject(sObject, data);
         // perform Update
-        SaveResult[] saveResult = salesforceConnectionClient
+        return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .update(sObjects);
-        // return result ID
-        return saveResult[0].getId();
+                .update(sObjects).first().getId();
     }
 
     Map<String, Object> retrieveSObject(String sObjectName, String id) throws ConnectionException {
@@ -74,24 +57,21 @@ class SObjectApi {
         //perform retrieveObject
         SObject[] sObjects = salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .retrieve(StringUtils.join(columns, ','), sObjectName, new String[]{id});
-        Map<String, Object> resultMap= new HashMap<>();
+                .retrieve(columns.join(','), sObjectName, id);
 
-        //build map
-        for(String column : columns) {
-            resultMap.put(column, sObjects[0].getField(column));
+        return columns.collectEntries{
+            [it, sObjects[0].getField(it)]
         }
-        return resultMap;
+
+
     }
 
 
     String deleteSObject(String id) throws ConnectionException {
-
         //perform retrieveObject
-        DeleteResult[] deleteResults = salesforceConnectionClient
+        return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .delete(new String[]{id});
-        // return result ID
-        return deleteResults[0].getId();
+                .delete(id).first().getId();
+
     }
 }

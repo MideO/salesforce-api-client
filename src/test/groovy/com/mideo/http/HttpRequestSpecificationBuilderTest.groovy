@@ -9,22 +9,17 @@ class HttpRequestSpecificationBuilderTest extends Specification {
 
         given:
             RequestSpecification requestSpecification;
-            HttpRequestSpecificationBuilder httpRequestSpecBuilder = new HttpRequestSpecificationBuilder();
 
         when:
-            requestSpecification = httpRequestSpecBuilder.build()
+            requestSpecification = HttpRequestSpecificationBuilder.build()
 
         then:
             assert requestSpecification != null
     }
 
     def "Should throw AssertionError for non 200 response"() {
-
-        given:
-            HttpRequestSpecificationBuilder httpRequestSpecBuilder = new HttpRequestSpecificationBuilder();
-
         when:
-            httpRequestSpecBuilder.build().get("https://test.salesforce.com/ssdssdsd")
+            HttpRequestSpecificationBuilder.build().get("https://test.salesforce.com/ssdssdsd")
 
         then:
             thrown(AssertionError)

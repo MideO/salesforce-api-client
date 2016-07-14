@@ -5,21 +5,11 @@ import com.sforce.async.*;
 
 class Job {
 
-    private JobInfo jobInfo;
-    private SalesforceConnectionClient salesforceConnectionClient;
-
-
-    Job() {
-        jobInfo = new JobInfo();
-    }
-
-    Job withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
-        this.salesforceConnectionClient = salesforceConnectionClient;
-        jobInfo = new JobInfo();
-        return this;
-    }
+    JobInfo jobInfo = new JobInfo();
+    SalesforceConnectionClient salesforceConnectionClient;
 
     Job newJobInfo(String jobName) {
+        jobInfo = new JobInfo();
         jobInfo.setObject(jobName);
         return this;
     }
@@ -28,7 +18,7 @@ class Job {
         jobInfo.setConcurrencyMode(ConcurrencyMode.Parallel);
         return this;
     }
-    
+
 
     Job setOperation(OperationEnum operationEnum) {
         jobInfo.setOperation(operationEnum);

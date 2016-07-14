@@ -4,29 +4,17 @@ import com.sforce.async.AsyncApiException;
 import com.sforce.async.BatchInfo;
 import com.sforce.async.JobInfo;
 
-import java.io.InputStream;
-
 
 class Batch {
 
     BatchInfo batchInfo;
-    private JobInfo jobInfo;
-    private InputStream inputStream;
-    private SalesforceConnectionClient salesforceConnectionClient;
-
-
-    Batch(){
-        batchInfo = new BatchInfo();
-    }
+    JobInfo jobInfo;
+    InputStream inputStream;
+    SalesforceConnectionClient salesforceConnectionClient;
 
     Batch addJob(JobInfo jobInfo) {
-        this.jobInfo = jobInfo;
-        return this;
-    }
-
-    Batch withSalesforceClient(SalesforceConnectionClient salesforceConnectionClient){
-        this.salesforceConnectionClient = salesforceConnectionClient;
         batchInfo = new BatchInfo();
+        this.jobInfo = jobInfo;
         return this;
     }
 
@@ -37,12 +25,16 @@ class Batch {
 
 
     Batch createStream() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, inputStream);
+        batchInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .createBatchFromStream(jobInfo, inputStream);
         return this;
     }
 
     BatchInfo createBatch() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient.getSalesForceWebServiceBulkConnection().createBatchFromStream(jobInfo, inputStream);
+        batchInfo = salesforceConnectionClient
+                .getSalesForceWebServiceBulkConnection()
+                .createBatchFromStream(jobInfo, inputStream);
         return batchInfo;
     }
 
@@ -51,14 +43,19 @@ class Batch {
         jobInfo = salesforceConnectionClient
                 .getSalesForceWebServiceBulkConnection()
                 .closeJob(jobInfo.getId());
-        return new PublishResult(batchInfo, jobInfo);
+        return new PublishResult(
+                batchInfo:batchInfo,
+                jobInfo:jobInfo
+        );
     }
 
     public String getBatchStatus(String jobId, String batchId) throws AsyncApiException {
         batchInfo = salesforceConnectionClient
                 .getSalesForceWebServiceBulkConnection()
                 .getBatchInfo(jobId, batchId);
-        return batchInfo.getState().name();
+        return batchInfo
+                .getState()
+                .name();
     }
 }
 

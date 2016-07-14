@@ -5,14 +5,6 @@ import com.sforce.async.*;
 import com.sforce.ws.ConnectionException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 public class SalesforceWebServiceClient {
 
@@ -22,7 +14,7 @@ public class SalesforceWebServiceClient {
     private Batch batch;
     private DataFetcher dataFetcher;
     private SObjectApi SObjectApi;
-    private long publishStatusCheckTimeout = 30000;
+    long publishStatusCheckTimeout = 30000;
 
     /**
      * @param salesforceConnectionClient Initiated Salesforce Connection client
@@ -35,10 +27,10 @@ public class SalesforceWebServiceClient {
      */
     public SalesforceWebServiceClient(SalesforceConnectionClient salesforceConnectionClient) {
         this.salesforceConnectionClient = salesforceConnectionClient;
-        job = new Job();
-        batch = new Batch();
-        dataFetcher = new DataFetcher();
-        SObjectApi = new SObjectApi();
+        job = new Job(salesforceConnectionClient: salesforceConnectionClient);
+        batch = new Batch(salesforceConnectionClient: salesforceConnectionClient);
+        dataFetcher = new DataFetcher(salesforceConnectionClient: salesforceConnectionClient);
+        SObjectApi = new SObjectApi(salesforceConnectionClient: salesforceConnectionClient);
     }
 
     /**
@@ -48,13 +40,11 @@ public class SalesforceWebServiceClient {
      * @throws AsyncApiException Saleforce Api AsyncApiException
      **/
     public PublishResult publishCsvToTable(InputStream csvInputStream, String targetObjectName) throws AsyncApiException {
-        JobInfo jobInfo = job.withSalesforceClient(salesforceConnectionClient)
-                .newJobInfo(targetObjectName)
+        JobInfo jobInfo = job.newJobInfo(targetObjectName)
                 .toInsert(ContentType.CSV)
                 .create();
 
-        return batch.withSalesforceClient(salesforceConnectionClient)
-                .addJob(jobInfo)
+        return batch.addJob(jobInfo)
                 .withInputStream(csvInputStream)
                 .createStream()
                 .finaliseJob();
@@ -77,8 +67,7 @@ public class SalesforceWebServiceClient {
      * @throws AsyncApiException Saleforce Api AsyncApiException
      **/
     public String getPublishedDataStatus(String jobId, String batchId) throws AsyncApiException {
-        return batch.withSalesforceClient(salesforceConnectionClient)
-                .getBatchStatus(jobId, batchId);
+        return batch.getBatchStatus(jobId, batchId);
 
     }
 
@@ -95,8 +84,7 @@ public class SalesforceWebServiceClient {
      *                             webClient.createObject("Account", accountDataMap)<br>
      **/
     public String createObject(String sObjectName, Map<String, Object> data) throws ConnectionException {
-        return SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .createSObject(sObjectName, data);
+        return SObjectApi.createSObject(sObjectName, data);
     }
 
     /**
@@ -111,8 +99,7 @@ public class SalesforceWebServiceClient {
      *                             webClient.updateObject("Account", accountDataMap)<br>
      **/
     public String updateObject(String sObjectName, String id, Map<String, Object> data) throws ConnectionException {
-        return SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .updateSObject(sObjectName, id, data);
+        return SObjectApi.updateSObject(sObjectName, id, data);
     }
 
     /**
@@ -125,8 +112,7 @@ public class SalesforceWebServiceClient {
      *                             webClient.updateObject("Account", accountDataMap)<br>
      **/
     public String deleteObject(String id) throws ConnectionException {
-        return SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .deleteSObject(id);
+        return SObjectApi.deleteSObject(id);
     }
 
     /**
@@ -137,8 +123,7 @@ public class SalesforceWebServiceClient {
      *                             webClient.retrieveSObject("Account", OjectId)
      **/
     public Map<String, Object> retrieveObject(String sObjectName, String id) throws ConnectionException {
-        return SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .retrieveSObject(sObjectName, id);
+        return SObjectApi.retrieveSObject(sObjectName, id);
     }
 
 
@@ -150,8 +135,7 @@ public class SalesforceWebServiceClient {
      * @throws IOException         Java IOException
      **/
     public List<Map<String, String>> exportDataFromTable(String targetObjectName) throws Exception {
-        List<String> columns = SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .getDataColumns(targetObjectName);
+        List<String> columns = SObjectApi.getDataColumns(targetObjectName);
 
         return exportDataFromTable(targetObjectName, columns, new HashMap<String, String>());
     }
@@ -182,8 +166,7 @@ public class SalesforceWebServiceClient {
      * @throws IOException         Java IOException
      **/
     public List<Map<String, String>> exportDataFromTable(String targetObjectName, Map<String, String> filters) throws Exception {
-        List<String> columns = SObjectApi.withSalesforceClient(salesforceConnectionClient)
-                .getDataColumns(targetObjectName);
+        List<String> columns = SObjectApi.getDataColumns(targetObjectName);
 
         return exportDataFromTable(targetObjectName, columns, filters);
     }
@@ -217,27 +200,25 @@ public class SalesforceWebServiceClient {
         ByteArrayInputStream soqlInputStream = new ByteArrayInputStream(query.getBytes());
 
 
-        JobInfo jobInfo = job.withSalesforceClient(salesforceConnectionClient)
+        JobInfo jobInfo = job.newJobInfo(targetObjectName)
                 .withParallelConcurrencyMode()
-                .newJobInfo(targetObjectName)
                 .toQuery(ContentType.CSV)
                 .setOperation(OperationEnum.query)
                 .create();
 
 
-        BatchInfo batchInfo = batch.withSalesforceClient(salesforceConnectionClient)
-                .addJob(jobInfo)
+        BatchInfo batchInfo = batch.addJob(jobInfo)
                 .withInputStream(soqlInputStream)
                 .createBatch();
 
         long counter = 0;
         long sleeptime = 1000;
 
-        try{while (counter <= publishStatusCheckTimeout) {
+        try{
+            while (counter <= publishStatusCheckTimeout) {
             if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Completed.name())) {
 
-                return dataFetcher.withSalesforceClient(salesforceConnectionClient)
-                        .fetchData(jobInfo.getId(), batchInfo.getId());
+                return dataFetcher.fetchData(jobInfo.getId(), batchInfo.getId());
             }
             if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Failed.name())) {
 

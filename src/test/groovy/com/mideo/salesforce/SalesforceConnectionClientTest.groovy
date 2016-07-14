@@ -3,8 +3,9 @@ package com.mideo.salesforce
 import com.jayway.restassured.builder.ResponseBuilder
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.response.Header
-import com.sforce.async.BulkConnection
 import com.mideo.http.HttpRequestSpecificationBuilder
+import com.sforce.async.BulkConnection
+
 import com.sforce.soap.partner.PartnerConnection
 import spock.lang.Specification
 
@@ -13,7 +14,6 @@ class SalesforceConnectionClientTest extends Specification {
 
     def "Should return BulkConnection"() {
         given:
-            HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder = Mock(HttpRequestSpecificationBuilder)
             RequestSpecification mockRequestSpecification = Mock(RequestSpecification)
             SalesforceConfig config = new SalesforceConfig("http://test.salesforce.com")
                     .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
@@ -25,12 +25,12 @@ class SalesforceConnectionClientTest extends Specification {
 
 
         when:
-            mockHttpRequestSpecBuilder.build()  >> mockRequestSpecification
+
             mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
             mockRequestSpecification.body(config.toString()) >> mockRequestSpecification
             mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
             mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
-            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockHttpRequestSpecBuilder)
+            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
             BulkConnection bulkConnection = connectionClient.getSalesForceWebServiceBulkConnection()
 
         then:
@@ -44,7 +44,7 @@ class SalesforceConnectionClientTest extends Specification {
 
     def "Should return PartnerConnection"() {
         given:
-            HttpRequestSpecificationBuilder mockHttpRequestSpecBuilder = Mock(HttpRequestSpecificationBuilder)
+
             RequestSpecification mockRequestSpecification = Mock(RequestSpecification)
             SalesforceConfig config = new SalesforceConfig("http://test.salesforce.com")
                 .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
@@ -56,12 +56,12 @@ class SalesforceConnectionClientTest extends Specification {
 
 
         when:
-            mockHttpRequestSpecBuilder.build()  >> mockRequestSpecification
+
             mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
             mockRequestSpecification.body(config.toString()) >> mockRequestSpecification
             mockRequestSpecification.header(new Header("Content-Type", "application/x-www-form-urlencoded")) >> mockRequestSpecification
             mockRequestSpecification.post("/services/oauth2/token") >> new ResponseBuilder().setBody(mockResponsePayload).setStatusCode(200).build()
-            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockHttpRequestSpecBuilder)
+            SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, mockRequestSpecification)
             PartnerConnection partnerConnection = connectionClient.getSalesForceWebServicePartnerConnection()
 
         then:

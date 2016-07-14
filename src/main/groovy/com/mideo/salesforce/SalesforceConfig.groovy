@@ -1,10 +1,7 @@
 package com.mideo.salesforce;
 
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-public class SalesforceConfig {
+class SalesforceConfig {
     String loginUrl;
     String clientId;
     String clientSecret;
@@ -53,3 +50,4 @@ public class SalesforceConfig {
         return config;
     }
 }
+

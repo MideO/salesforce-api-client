@@ -11,35 +11,22 @@ import com.sforce.soap.partner.Field
 
 class sObjectApiTest extends Specification {
 
-    def "Should Set Salesforce Client"() {
-        given:
-            SObjectApi describer = new SObjectApi();
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
-
-        when:
-            describer.withSalesforceClient(mockConnectionClient);
-
-        then:
-            describer.salesforceConnectionClient == mockConnectionClient;
-    }
-
     def "Should Get Data Columns"() {
         given:
             String tableName = "Rubarb";
-        SObjectApi describer = new SObjectApi();
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
             DescribeSObjectResult mockDescribeSObjectResult = Mock(DescribeSObjectResult);
             Field mockField = Mock(Field);
             Field[] mockFields = [mockField];
+            SObjectApi objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "fruit";
-            List<String> resultName = describer.withSalesforceClient(mockConnectionClient)
-                    .getDataColumns(tableName);
+            List<String> resultName = objectApi.getDataColumns(tableName);
 
         then:
             assert resultName.size() == 1;
@@ -50,16 +37,17 @@ class sObjectApiTest extends Specification {
         given:
             String sObjectName = "Alastair";
             Map<String, String> data = ["car":"abarth","insurance":"10m"];
-            SObjectApi objectApi = new SObjectApi();
+
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
             SaveResult saveResult = new SaveResult( id: "fakeId");
             SaveResult[] results = [saveResult];
+            SObjectApi objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.create(_) >> results;
-            String Id =  objectApi.withSalesforceClient(mockConnectionClient).createSObject(sObjectName, data);
+            String Id =  objectApi.createSObject(sObjectName, data);
 
         then:
             assert Id == "fakeId";
@@ -69,18 +57,18 @@ class sObjectApiTest extends Specification {
         given:
         String sObjectName = "Mide";
         Map<String, String> data = ["car":"Fiat Panda","insurance":"£2"];
-        SObjectApi objectApi = new SObjectApi();
         SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
         PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
         String id = "fakeid";
         SaveResult saveResult = new SaveResult( id: "fakeId");
         SaveResult[] results = [saveResult];
+        SObjectApi objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
 
         when:
         mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
         mockPartnerConnection.update(_) >> results;
 
-        String Id =  objectApi.withSalesforceClient(mockConnectionClient).updateSObject(sObjectName, id, data);
+        String Id =  objectApi.updateSObject(sObjectName, id, data);
 
         then:
         assert Id == "fakeId";
@@ -92,12 +80,12 @@ class sObjectApiTest extends Specification {
             sObject.setSObjectField("car", "Fiat Panda");
             sObject.setId("fakeId");
             SObject[] sObjects = [sObject];
-            SObjectApi objectApi = new SObjectApi();
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
-            PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
             DescribeSObjectResult mockDescribeSObjectResult = Mock(DescribeSObjectResult);
             Field mockField = Mock(Field);
             Field[] mockFields = [mockField];
+            PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
+            SObjectApi objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
 
 
         when:
@@ -108,7 +96,7 @@ class sObjectApiTest extends Specification {
             String[] ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
 
-            Map<String, Object> resultMap =  objectApi.withSalesforceClient(mockConnectionClient).retrieveSObject("Mide", "fakeId");
+            Map<String, Object> resultMap =  objectApi.retrieveSObject("Mide", "fakeId");
 
         then:
             assert resultMap.get("car") == "Fiat Panda";
@@ -117,18 +105,18 @@ class sObjectApiTest extends Specification {
 
     def "Should Delete SObject"() {
         given:
-            SObjectApi objectApi = new SObjectApi();
             SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             PartnerConnection mockPartnerConnection = Mock(PartnerConnection);
             String id = "fakeid";
             DeleteResult deleteResult= new DeleteResult( id: "fakeId");
             DeleteResult[] deleteResults= [deleteResult];
+            SObjectApi objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.delete(_) >> deleteResults;
 
-            String Id =  objectApi.withSalesforceClient(mockConnectionClient).deleteSObject(id);
+            String Id =  objectApi.deleteSObject(id);
 
         then:
             assert Id == "fakeId";

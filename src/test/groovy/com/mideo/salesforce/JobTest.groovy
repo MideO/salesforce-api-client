@@ -40,17 +40,6 @@ class JobTest extends Specification {
             assert job.jobInfo.contentType== ContentType.XML
     }
 
-    def "Should Set SalesforceClient"() {
-        given:
-            Job job = new Job()
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
-        when:
-            job.withSalesforceClient(mockConnectionClient)
-        then:
-            assert job.salesforceConnectionClient == mockConnectionClient
-
-    }
-
 
     def "Should set Job as Concurrent"() {
         given:
@@ -69,9 +58,9 @@ class JobTest extends Specification {
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
-            Job job = new Job()
+
+            Job job = new Job(salesforceConnectionClient: mockConnectionClient)
                     .newJobInfo("jobby")
-                    .withSalesforceClient(mockConnectionClient)
                     .setOperation(OperationEnum.insert)
                     .setContentType(ContentType.CSV)
             JobInfo jobInfo = job.create();
