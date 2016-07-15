@@ -50,7 +50,7 @@ logData.put("Exception_Type__c","dummyEx"+ DateTime.now().toString());
 result = webClient.updateObject("Log__c",result, logData);
 
 
-// Retrieve Object
+//Retrieve Object
 Map<String, Object> resultMap = webClient.retrieveObject("Case", caseId);
             
             
@@ -63,7 +63,7 @@ ExecuteAnonymousResult exectueResult = webClient.executeApexBlock("System.debug(
 
 
 //Export data
-List<Map<String, String>> dataList = webClient.exportDataFromTable("Account");
+List<Map<String, String>> dataList = webClient.setPublishStatusCheckTimeout(10000)..exportDataFromTable("Account");
 
 
 //publish csv stream to sObject via bulk api
