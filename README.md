@@ -34,6 +34,8 @@ SalesforceConfig config = new SalesforceConfig("https://test.salesforce.com")
                 .userToken("gfhjk")
                 .password("fghjkl");
 
-        SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, HttpRequestSpecificationBuilder.build());
-        SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
+SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, HttpRequestSpecificationBuilder.build());
+SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
+
+List<Map<String, String>> dataList = webClient.exportDataFromTable("Account");
 ```
