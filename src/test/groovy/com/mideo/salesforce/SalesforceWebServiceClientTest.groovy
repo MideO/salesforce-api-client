@@ -423,23 +423,4 @@ class SalesforceWebServiceClientTest extends Specification {
             assert result.success;
 
     }
-
-    def "Should throw exception is execute Anonymous Apex fails"() {
-        given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockSoapConnection = Mock(SoapConnection);
-            def executeAnonymousResult= new ExecuteAnonymousResult( success: false);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-
-
-        when:
-            mockConnectionClient.getSalesforceSoapConnection() >> mockSoapConnection;
-            mockSoapConnection.executeAnonymous("abcs") >> executeAnonymousResult;
-            webServiceClient.executeApexBlock("abcs");
-
-
-        then:
-            thrown SalesforceApiOperationException
-
-    }
 }

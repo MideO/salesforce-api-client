@@ -67,12 +67,8 @@ public class SalesforceWebServiceClient {
      * @return
      */
     public ExecuteAnonymousResult executeApexBlock(String apexCode) {
-        def result = SObjectApi.executeApexBlock(apexCode)
-        if (!result.getSuccess())
-            throw new SalesforceApiOperationException(
-                    "${result.compileProblem}\n${result.exceptionMessage}\n${result.exceptionStackTrace}"
-            )
-        return result;
+        return SObjectApi.executeApexBlock(apexCode)
+
 
 
     }
