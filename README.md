@@ -20,6 +20,6 @@ repositories {
 ```groovy
 dependencies {
     ....
-    compile group: 'com.mideo', name:'salesforce-api-client', version: '0.0.1.20160715.1859'
+    compile group: 'com.mideo', name:'salesforce-api-client', version: '0.0.1'
 }
 ```
