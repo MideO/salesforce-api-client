@@ -90,6 +90,17 @@ artifacts {
 
 }
 
+task gitPublish(dependsOn: [clean, build]){
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client"
+                version "0.0.1.${new Date().format('yyyyMMdd.HHmm')}"
+            }
+        }
+    }
+}
+
 build.doLast {
     uploadArchives.execute()
 }
