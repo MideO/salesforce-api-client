@@ -66,9 +66,11 @@ ExecuteAnonymousResult exectueResult = webClient.executeApexBlock("System.debug(
 List<Map<String, String>> dataList = webClient.setPublishStatusCheckTimeout(10000)..exportDataFromTable("Account");
 
 
-//publish csv stream to sObject via bulk api
+//Publish csv stream to sObject via bulk api
 PublishResult publishResult = webClient.publishCsvToTable(csvInputStream, "Contact");
 
+//Get published data status
+String status = getPublishedDataStatus(publishResult.jobInfo.getId, publishResult.batchInfo.getId);
             
 //Export filtered data
 Map<String,String> filter = new HashMap<>();

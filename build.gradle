@@ -101,10 +101,6 @@ task gitPublish(dependsOn: [clean, build]){
     }
 }
 
-build.doLast {
-    uploadArchives.execute()
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion =  2.13
 }
