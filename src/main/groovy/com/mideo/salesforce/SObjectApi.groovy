@@ -1,6 +1,7 @@
 package com.mideo.salesforce
 
-import com.sforce.soap.apex.ExecuteAnonymousResult;
+import com.sforce.soap.apex.ExecuteAnonymousResult
+import com.sforce.soap.partner.FieldType;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 
@@ -20,12 +21,13 @@ class SObjectApi {
     }
 
     List<String> getDataColumns(String targetObjectName) throws ConnectionException {
-        return  salesforceConnectionClient
+        return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
                 .describeSObject(targetObjectName)
-                .getFields().collect {
-                it.getName()
-            }
+                .getFields()
+                .findAll { it.getType().equals(FieldType.address) ? [] : it}
+                .collect{ it.getName() }
+
     }
 
     String createSObject(String sObjectName, Map<String, Object> data) throws ConnectionException {

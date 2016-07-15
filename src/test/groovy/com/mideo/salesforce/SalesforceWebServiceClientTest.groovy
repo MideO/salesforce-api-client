@@ -11,6 +11,7 @@ import com.sforce.soap.apex.SoapConnection
 import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.Field
+import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.SaveResult
 import com.sforce.soap.partner.sobject.SObject
@@ -104,6 +105,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "fruit";
+            mockField.getType() >> FieldType.string;
 
 
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
@@ -295,6 +297,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "fruit";
+            mockField.getType() >> FieldType.string;
 
 
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
@@ -375,6 +378,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockPartnerConnection.describeSObject("Mide") >> mockDescribeSObjectResult;
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "car";
+            mockField.getType() >> FieldType.string;
             def ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
 
