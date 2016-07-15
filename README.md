@@ -40,8 +40,6 @@ SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connection
 
 //Create sObject
 Map<String,Object> logData = new HashMap<>();
-
-
 logData.put("Short_Description__c","Api test"+ DateTime.now().toString());
 logData.put("Description__c","test description Api test"+ DateTime.now().toString()) 
 String result = webClient.createObject("Log__c", logData);
@@ -50,7 +48,15 @@ String result = webClient.createObject("Log__c", logData);
 //Update sObject
 logData.put("Exception_Type__c","dummyEx"+ DateTime.now().toString());
 result = webClient.updateObject("Log__c",result, logData);
-                        
+
+
+// Retrieve Object
+Map<String, Object> resultMap = webClient.retrieveObject("Case", caseId);
+            
+            
+//Delete sObject
+String result = webClient.deleteObject(contactId);
+
                         
 //Execute Anonymous Apex 
 ExecuteAnonymousResult exectueResult = webClient.executeApexBlock("System.debug('test debug message');");
