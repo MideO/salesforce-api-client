@@ -33,8 +33,8 @@ SalesforceConfig config = new SalesforceConfig("https://test.salesforce.com")
                 .userName("a@b.com")
                 .userToken("gfhjk")
                 .password("fghjkl");
-
-SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, HttpRequestSpecificationBuilder.build());
+RequestSpecification requestSpecification = HttpRequestSpecificationBuilder.build();
+SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, requestSpecification);
 SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
 
 
@@ -63,14 +63,19 @@ ExecuteAnonymousResult exectueResult = webClient.executeApexBlock("System.debug(
 
 
 //Export data
-List<Map<String, String>> dataList = webClient.setPublishStatusCheckTimeout(10000)..exportDataFromTable("Account");
+List<Map<String, String>> dataList = webClient
+                                    .setPublishStatusCheckTimeout(10000)
+                                    .exportDataFromTable("Account");
 
 
 //Publish csv stream to sObject via bulk api
 PublishResult publishResult = webClient.publishCsvToTable(csvInputStream, "Contact");
 
 //Get published data status
-String status = getPublishedDataStatus(publishResult.jobInfo.getId, publishResult.batchInfo.getId);
+String status = getPublishedDataStatus(
+                        publishResult.jobInfo.getId, 
+                        publishResult.batchInfo.getId
+                            );
             
 //Export filtered data
 Map<String,String> filter = new HashMap<>();
