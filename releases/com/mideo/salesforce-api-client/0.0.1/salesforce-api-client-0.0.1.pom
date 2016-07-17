@@ -5,6 +5,8 @@
   <groupId>com.mideo</groupId>
   <artifactId>salesforce-api-client</artifactId>
   <version>0.0.1</version>
+  <name>Salesforce Api Client</name>
+  <description>Salesforce Api Client</description>
   <dependencies>
     <dependency>
       <groupId>com.force.api</groupId>
