@@ -1,22 +1,23 @@
 buildscript {
-
     repositories {
         mavenCentral()
-        mavenLocal()
+    }
+    dependencies {
+        classpath 'com.ryanharter.gradle-git-repo:gradle-plugin:1.0.1'
     }
 }
 
+apply plugin: 'git-repo'
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven'
-apply plugin: 'maven-publish'
+
 
 group 'com.mideo'
 
 version = '0.0.1-SNAPSHOT'
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -50,15 +51,6 @@ test {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository url: "file://${System.properties['user.home']}/.m2/repository"
-        }
-    }
-}
-
-
 jar {
     archivesBaseName = rootProject.name
     group = group
@@ -90,18 +82,15 @@ artifacts {
 
 }
 
-task gitPublish(dependsOn: [clean, build]){
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client"
-                version "0.0.1"
-            }
-        }
-    }
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion =  2.13
 }
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'git@github.com:MideO/salesforce-api-client.git/releases')
+            snapshotRepository(url: 'git@github.com:MideO/salesforce-api-client.git/snapshots')
+        }
+    }
+}
