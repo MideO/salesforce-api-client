@@ -86,11 +86,26 @@ task wrapper(type: Wrapper) {
     gradleVersion =  2.13
 }
 
+
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'git@github.com:MideO/salesforce-api-client.git/releases')
             snapshotRepository(url: 'git@github.com:MideO/salesforce-api-client.git/snapshots')
+
+            pom.groupId = 'com.mideo'
+            pom.artifactId = 'salesforce-api-client'
+            pom.version = version
+
+            pom.project {
+                name = 'Salesforce Api Client'
+                packaging = 'jar'
+                description = 'Salesforce Api Client'
+            }
         }
     }
+}
+
+build.doLast{
+    uploadArchives.execute();
 }
