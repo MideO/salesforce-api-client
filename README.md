@@ -3,6 +3,25 @@
 ###Build Status
 [![Build Status](https://travis-ci.org/MideO/salesforce-api-client.svg?branch=master)](https://travis-ci.org/MideO/salesforce-api-client)
 
+###Setup dependency
+
+#### In build.gradle
+
+#####Add maven url
+```groovy
+repositories {
+    ....
+    maven {url 'https://github.com/MideO/salesforce-api-client/raw/mvn-repo/'}
+}
+```
+   
+#####Add dependency
+```groovy
+dependencies {
+    ....
+    compile group: 'com.mideo', name:'salesforce-api-client', version: '0.0.1'
+}
+```
 
 #####Usage
 ```Java
