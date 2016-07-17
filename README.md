@@ -10,15 +10,18 @@
 #####Add maven url
 ```groovy
 repositories {
-    ....
-    maven {url 'https://github.com/MideO/salesforce-api-client/raw/mvn-repo/'}
+    mavenCentral()
+    maven {url 'https://github.com/MideO/salesforce-api-client/raw/mvn-repo/releases'}
 }
+
 ```
+
+
+
    
 #####Add dependency
 ```groovy
 dependencies {
-    ....
     compile group: 'com.mideo', name:'salesforce-api-client', version: '0.0.1'
 }
 ```
