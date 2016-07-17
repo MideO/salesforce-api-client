@@ -1,22 +1,13 @@
-buildscript {
-
-    repositories {
-        mavenCentral()
-        mavenLocal()
-    }
-}
-
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven'
-apply plugin: 'maven-publish'
+
 
 group 'com.mideo'
 
 version = '0.0.1-SNAPSHOT'
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -50,15 +41,6 @@ test {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository url: "file://${System.properties['user.home']}/.m2/repository"
-        }
-    }
-}
-
-
 jar {
     archivesBaseName = rootProject.name
     group = group
@@ -90,20 +72,29 @@ artifacts {
 
 }
 
-task gitPublish(){
-    dependsOn build
-    doLast {
-        uploadArchives {
-            repositories {
-                mavenDeployer {
-                    repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client"
-                }
-            }
-        }.execute()
-    }
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion =  2.13
 }
 
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/snapshots"
+
+            pom.groupId = 'com.mideo'
+            pom.artifactId = 'salesforce-api-client'
+            pom.version = version
+
+            pom.project {
+                name = 'Salesforce Api Client'
+                packaging = 'jar'
+                description = 'Salesforce Api Client'
+            }
+        }
+    }
+}
+
+build.doLast{
+    uploadArchives.execute();
+}
