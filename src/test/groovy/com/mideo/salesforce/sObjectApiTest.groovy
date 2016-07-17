@@ -37,10 +37,15 @@ class sObjectApiTest extends Specification {
             assert resultName.contains("fruit");
     }
 
+    class MockAccount {
+        def name;
+        def email;
+    }
+
     def "Should Create SObject"() {
         given:
-            def sObjectName = "Alastair";
-            def data = ["car":"abarth","insurance":"10m"];
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
+            def sObjectName = "Account";
 
             def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockPartnerConnection = Mock(PartnerConnection);
@@ -51,16 +56,18 @@ class sObjectApiTest extends Specification {
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.create(_) >> results;
-            def Id =  objectApi.createSObject(sObjectName, data);
+            def Id =  objectApi.createSObject(sObjectName, mockAccount);
 
         then:
             assert Id == "fakeId";
     }
 
     def "Should Update SObject"() {
+
         given:
-            def sObjectName = "Mide";
-            def data = ["car":"Fiat Panda","insurance":"£2"];
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
+            def sObjectName = "Account";
+
             def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockPartnerConnection = Mock(PartnerConnection);
             def id = "fakeid";
@@ -71,10 +78,10 @@ class sObjectApiTest extends Specification {
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.update(_) >> results;
-            def Id =  objectApi.updateSObject(sObjectName, id, data);
+            def Id =  objectApi.updateSObject(sObjectName, id, mockAccount);
 
         then:
-        assert Id == "fakeId";
+            assert Id == "fakeId";
     }
 
     def "Should Retrieve SObject"() {

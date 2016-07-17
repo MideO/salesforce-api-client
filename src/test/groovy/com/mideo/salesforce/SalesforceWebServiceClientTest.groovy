@@ -359,6 +359,52 @@ class SalesforceWebServiceClientTest extends Specification {
             assert resultID == "fakeId";
     }
 
+    class MockContact {
+        def name;
+        def email;
+    }
+
+    def "Should create Object form POJO"() {
+        given:
+            def sObjectName = "Contact"
+            def contact = new MockContact(name:"test name",email: "a@b.com")
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def saveResult = new SaveResult( id: "fakeId");
+            def results = [saveResult];
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.create(_) >> results;
+            def Id =  webServiceClient.createObject(sObjectName, contact);
+
+
+        then:
+          assert Id == "fakeId";
+    }
+
+    def "Should update Object from POJO"() {
+        given:
+
+            def contact = new MockContact(name:"test name",email: "a@b.com")
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def saveResult = new SaveResult( id: "fakeId");
+            def results = [saveResult];
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def id = "evenFakerId";
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.update(_) >> results;
+            def resultID =  webServiceClient.updateObject("Contact", id, contact);
+
+
+        then:
+            assert resultID == "fakeId";
+    }
+
     def "Should retrieve salesforce object as a map"() {
         given:
             def sObject = new SObject("Mide");

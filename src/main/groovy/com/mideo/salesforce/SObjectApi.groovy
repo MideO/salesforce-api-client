@@ -3,19 +3,19 @@ package com.mideo.salesforce
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.partner.FieldType;
 import com.sforce.soap.partner.sobject.SObject;
-import com.sforce.ws.ConnectionException;
+import com.sforce.ws.ConnectionException
+import org.codehaus.jackson.map.ObjectMapper;
 
 
 class SObjectApi {
     SalesforceConnectionClient salesforceConnectionClient;
 
 
-    static SObject[] buildSObject(SObject sObject, Map<String, Object> data) {
-        for(Map.Entry entry: data.entrySet()){
-            sObject.setSObjectField(entry.getKey().toString(), entry.getValue());
+    static SObject[] buildSObject(SObject sObject, Object data) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.convertValue(data, Map.class).each{
+            k,v -> sObject.setSObjectField((String)k, v)
         }
-
-        data.each {k,v -> sObject.setSObjectField(k,v)};
 
         return [sObject]
     }
@@ -30,7 +30,7 @@ class SObjectApi {
 
     }
 
-    String createSObject(String sObjectName, Map<String, Object> data) throws ConnectionException {
+    String createSObject(String sObjectName, Object data) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
@@ -39,7 +39,7 @@ class SObjectApi {
 
     }
 
-    String updateSObject(String sObjectName, String id, Map<String, Object> data) throws ConnectionException {
+    String updateSObject(String sObjectName, String id, Object data) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         sObject.setId(id);
 
