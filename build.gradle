@@ -13,7 +13,7 @@ apply plugin: 'maven-publish'
 
 group 'com.mideo'
 
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 repositories {
     mavenLocal()
@@ -90,14 +90,17 @@ artifacts {
 
 }
 
-task gitPublish(dependsOn: [clean, build]){
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client"
-                version "0.0.1"
+task gitPublish(){
+    dependsOn build
+    doLast {
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client"
+                    version "0.0.1"
+                }
             }
-        }
+        }.execute()
     }
 }
 
