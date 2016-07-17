@@ -87,7 +87,7 @@ public class SalesforceWebServiceClient {
 
     /**
      * @param sObjectName Salesforce Object Name
-     * @param data        key value pair for each data column to be populated
+     * @param serializableObject Any serializable object
      * @return String value of created Object Id
      * @throws ConnectionException <br >Usage:<br >
      *                             Map&lt;String, Object&gt; accountDataMap = new HashMap&lt;String, String&gt;();<br>
@@ -95,24 +95,50 @@ public class SalesforceWebServiceClient {
      *                             accountDataMap.put("email", "testName@example.com");<br><br>
      *                             <p>
      *                             webClient.createObject("Account", accountDataMap)<br>
+     *                             <br ><br >Or with a pojo<br >
+     *                             class Account {<br >
+     *                                 private String name;<br >
+     *                                 private String email;<br ><br >
+     *
+     *                                 public Account(String name, String email){<br >
+     *                                      this.name = name;<br >
+     *                                      this.email = email;<br >
+     *                                 }<br >
+     *                             }<br >
+     *                             Account account = new Account("testName Surname", "testName@example.com");<br>
+     *                             <p>
+     *                             webClient.createObject("Account", account)<br>
      **/
-    public String createObject(String sObjectName, Map<String, Object> data) throws ConnectionException {
-        return SObjectApi.createSObject(sObjectName, data);
+    public String createObject(String sObjectName, Object serializableObject) throws ConnectionException {
+        return SObjectApi.createSObject(sObjectName, serializableObject);
     }
 
     /**
      * @param sObjectName Salesforce Object Name
-     * @param data        key value pair for each data column to be populated
+     * @param serializableObject Any serializable object
      * @param id          Salesforce Object Id
      * @return String value of updated Object Id
      * @throws ConnectionException <br >Usage:<br >
      *                             Map&lt;String, Object&gt; accountDataMap = new HashMap&lt;String, String&gt;();<br>
      *                             accountDataMap.put("Name", "testName Surname");<br>
      *                             accountDataMap.put("email", "testName@example.com");<br>
-     *                             webClient.updateObject("Account", accountDataMap)<br>
+     *                             webClient.updateObject("Account","ghdgjs8S", accountDataMap)<br>
+     *                             <br ><br >Or with a pojo<br >
+     *                             class Account {<br >
+     *                                 private String name;<br >
+     *                                 private String email;<br ><br >
+     *
+     *                                 public Account(String name, String email){<br >
+     *                                      this.name = name;<br >
+     *                                      this.email = email;<br >
+     *                                 }<br >
+     *                             }<br >
+     *                             Account account = new Account("testName SurnameUpdated", "testName1@example.com");<br>
+     *                             <p>
+     *                             webClient.updateObject("Account","ghdgjs8S" account)<br>
      **/
-    public String updateObject(String sObjectName, String id, Map<String, Object> data) throws ConnectionException {
-        return SObjectApi.updateSObject(sObjectName, id, data);
+    public String updateObject(String sObjectName, String id, Object serializableObject) throws ConnectionException {
+        return SObjectApi.updateSObject(sObjectName, id, serializableObject);
     }
 
     /**
