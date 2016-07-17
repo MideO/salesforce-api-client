@@ -82,7 +82,6 @@ uploadArchives {
         mavenDeployer {
             repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/snapshots"
 
-
             pom.groupId = 'com.mideo'
             pom.artifactId = 'salesforce-api-client'
             pom.version = version
