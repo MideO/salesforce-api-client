@@ -5,7 +5,7 @@ apply plugin: 'maven'
 
 group 'com.github.mideo'
 
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 repositories {
     mavenCentral()
@@ -80,10 +80,10 @@ task wrapper(type: Wrapper) {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/snapshots"
+            repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/release"
 
-            pom.groupId = 'com.mideo'
-            pom.artifactId = 'salesforce-api-client'
+            pom.groupId = rootProject.group
+            pom.artifactId = rootProject.name
             pom.version = version
 
             pom.project {
