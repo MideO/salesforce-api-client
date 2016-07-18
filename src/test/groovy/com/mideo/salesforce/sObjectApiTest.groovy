@@ -7,6 +7,7 @@ import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.SaveResult
+import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.sobject.SObject
 import spock.lang.Specification
 
@@ -79,6 +80,28 @@ class sObjectApiTest extends Specification {
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.update(_) >> results;
             def Id =  objectApi.updateSObject(sObjectName, id, mockAccount);
+
+        then:
+            assert Id == "fakeId";
+    }
+
+    def "Should Create Or Update SObject"() {
+
+        given:
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
+            def sObjectName = "Account";
+
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def id = "fakeid";
+            def UpsertResult = new UpsertResult( id: "fakeId");
+            def results = [UpsertResult];
+            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.upsert('Id', _) >> results;
+            def Id =  objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
 
         then:
             assert Id == "fakeId";

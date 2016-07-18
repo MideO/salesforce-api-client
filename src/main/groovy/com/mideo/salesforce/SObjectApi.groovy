@@ -30,22 +30,32 @@ class SObjectApi {
 
     }
 
-    String createSObject(String sObjectName, Object data) throws ConnectionException {
+    String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .create(buildSObject(sObject, data)).first().getId();
+                .create(buildSObject(sObject, deserializableObject)).first().getId();
 
 
     }
 
-    String updateSObject(String sObjectName, String id, Object data) throws ConnectionException {
+
+    String createOrUpdateSObject(String sObjectName, String externalIdFieldName, Object deserializableObject) throws ConnectionException {
+        SObject sObject = new SObject(sObjectName);
+        return salesforceConnectionClient
+                .getSalesForceWebServicePartnerConnection()
+                .upsert(externalIdFieldName, buildSObject(sObject, deserializableObject)).first().getId();
+    }
+
+
+
+    String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         sObject.setId(id);
 
         return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .update(buildSObject(sObject, data)).first().getId();
+                .update(buildSObject(sObject, deserializableObject)).first().getId();
     }
 
     Map<String, Object> retrieveSObject(String sObjectName, String id) throws ConnectionException {
