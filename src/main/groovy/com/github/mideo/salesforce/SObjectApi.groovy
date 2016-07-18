@@ -10,9 +10,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 class SObjectApi {
     SalesforceConnectionClient salesforceConnectionClient;
 
+    static ObjectMapper mapper = new ObjectMapper();
 
     static SObject[] buildSObject(SObject sObject, Object data) {
-        ObjectMapper mapper = new ObjectMapper();
+
         mapper.convertValue(data, Map.class).each{
             k,v -> sObject.setSObjectField((String)k, v)
         }
@@ -69,8 +70,6 @@ class SObjectApi {
         return columns.collectEntries{
             [it, sObjects[0].getField(it)]
         }
-
-
     }
 
 
@@ -80,6 +79,18 @@ class SObjectApi {
                 .getSalesForceWebServicePartnerConnection()
                 .delete(id).first().getId();
 
+    }
+
+    List<Map<String, Object>> executeSoqlQuery(String queryString){
+
+        return salesforceConnectionClient
+                .getSalesForceWebServicePartnerConnection()
+                .query(queryString)
+                .getRecords().collect{
+                    it.children.collectEntries{
+                        [it.getName().getLocalPart(), it.value]
+                    }
+                }
     }
 
     ExecuteAnonymousResult executeApexBlock(String apexCode){

@@ -6,6 +6,7 @@ import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
+import com.sforce.soap.partner.QueryResult
 import com.sforce.soap.partner.SaveResult
 import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.sobject.SObject
@@ -105,6 +106,28 @@ class sObjectApiTest extends Specification {
 
         then:
             assert Id == "fakeId";
+    }
+
+    def "Should execute soql query"() {
+
+        given:
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def mockQueryResult = Mock(QueryResult);
+            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def sObject = new SObject();
+            sObject.setField('abc', 123);
+
+        when:
+
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
+            mockPartnerConnection.query(_) >> mockQueryResult;
+            mockQueryResult.getRecords() >> [sObject];
+            def result = objectApi.executeSoqlQuery('abc123');
+
+        then:
+            assert result.get(0).keySet().contains('abc');
+            assert result.get(0).values().contains(123);
     }
 
     def "Should Retrieve SObject"() {

@@ -67,10 +67,15 @@ public class SalesforceWebServiceClient {
      * @return
      */
     public ExecuteAnonymousResult executeApexBlock(String apexCode) {
-        return SObjectApi.executeApexBlock(apexCode)
+        return SObjectApi.executeApexBlock(apexCode);
+    }
 
-
-
+    /**
+     * @param queryString - soql query
+     * @return
+     */
+    public List<Map<String,Object>> executeSoqlQuery(String queryString) {
+        return SObjectApi.executeSoqlQuery(queryString);
     }
 
     /**

@@ -8,6 +8,7 @@ import com.sforce.async.JobStateEnum
 import com.sforce.async.QueryResultList
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection
+import com.sforce.soap.partner.QueryResult
 import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
@@ -424,7 +425,6 @@ class SalesforceWebServiceClientTest extends Specification {
             mockPartnerConnection.upsert('Id', _) >> results;
             def resultId =  webServiceClient.createOrUpdateObject("Contact", 'Id', contact);
 
-
         then:
             assert resultId == "fakeId";
     }
@@ -495,6 +495,31 @@ class SalesforceWebServiceClientTest extends Specification {
 
         then:
             assert result.success;
+
+    }
+
+
+    def "Should execute Soql Query"() {
+        given:
+
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def mockQueryResult = Mock(QueryResult);
+            def sObject = new SObject();
+            sObject.setField('abc', 123);
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
+            mockPartnerConnection.query(_) >> mockQueryResult;
+            mockQueryResult.getRecords() >> [sObject];
+            def result = webServiceClient .executeSoqlQuery('abc123');
+
+
+        then:
+            assert result.get(0).keySet().contains('abc');
+            assert result.get(0).values().contains(123);
 
     }
 }
