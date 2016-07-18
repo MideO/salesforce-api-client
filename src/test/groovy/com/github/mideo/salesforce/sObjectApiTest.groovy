@@ -1,4 +1,4 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection

@@ -1,4 +1,4 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.sforce.async.BulkConnection
 import com.sforce.async.ContentType

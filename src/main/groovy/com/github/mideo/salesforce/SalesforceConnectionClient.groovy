@@ -1,4 +1,4 @@
-package com.mideo.salesforce;
+package com.github.mideo.salesforce;
 
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Response
