@@ -1,12 +1,8 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.jayway.restassured.builder.ResponseBuilder
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.response.Header
-import com.mideo.http.HttpRequestSpecificationBuilder
-import com.sforce.async.BulkConnection
-import com.sforce.soap.apex.SoapConnection
-import com.sforce.soap.partner.PartnerConnection
 import spock.lang.Specification
 
 

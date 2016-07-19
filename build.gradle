@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 
 
-group 'com.mideo'
+group 'com.github.mideo'
 
 version = '0.0.1-SNAPSHOT'
 
@@ -82,8 +82,8 @@ uploadArchives {
         mavenDeployer {
             repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/snapshots"
 
-            pom.groupId = 'com.mideo'
-            pom.artifactId = 'salesforce-api-client'
+            pom.groupId = rootProject.group
+            pom.artifactId = rootProject.name
             pom.version = version
 
             pom.project {

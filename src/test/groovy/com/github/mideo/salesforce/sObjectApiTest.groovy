@@ -1,4 +1,4 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection
@@ -6,7 +6,9 @@ import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
+import com.sforce.soap.partner.QueryResult
 import com.sforce.soap.partner.SaveResult
+import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.sobject.SObject
 import spock.lang.Specification
 
@@ -82,6 +84,50 @@ class sObjectApiTest extends Specification {
 
         then:
             assert Id == "fakeId";
+    }
+
+    def "Should Create Or Update SObject"() {
+
+        given:
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
+            def sObjectName = "Account";
+
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def id = "fakeid";
+            def UpsertResult = new UpsertResult( id: "fakeId");
+            def results = [UpsertResult];
+            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.upsert('Id', _) >> results;
+            def Id =  objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
+
+        then:
+            assert Id == "fakeId";
+    }
+
+    def "Should execute soql query"() {
+
+        given:
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def mockQueryResult = Mock(QueryResult);
+            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def sObject = new SObject();
+            sObject.setField('abc', 123);
+
+        when:
+
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
+            mockPartnerConnection.query(_) >> mockQueryResult;
+            mockQueryResult.getRecords() >> [sObject];
+            def result = objectApi.executeSoqlQuery('abc123');
+
+        then:
+            assert result.get(0).keySet().contains('abc');
+            assert result.get(0).values().contains(123);
     }
 
     def "Should Retrieve SObject"() {

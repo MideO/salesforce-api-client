@@ -1,4 +1,4 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.sforce.async.BatchInfo
 import com.sforce.async.BatchStateEnum
@@ -8,6 +8,8 @@ import com.sforce.async.JobStateEnum
 import com.sforce.async.QueryResultList
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection
+import com.sforce.soap.partner.QueryResult
+import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.Field
@@ -359,6 +361,8 @@ class SalesforceWebServiceClientTest extends Specification {
             assert resultID == "fakeId";
     }
 
+
+
     class MockContact {
         def name;
         def email;
@@ -398,11 +402,31 @@ class SalesforceWebServiceClientTest extends Specification {
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.update(_) >> results;
-            def resultID =  webServiceClient.updateObject("Contact", id, contact);
+            def resultId =  webServiceClient.updateObject("Contact", id, contact);
 
 
         then:
-            assert resultID == "fakeId";
+            assert resultId == "fakeId";
+    }
+
+
+    def "Should create or update Object from POJO"() {
+        given:
+            def contact = new MockContact(name:"test name",email: "a@b.com")
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def upsertResult = new UpsertResult( id: "fakeId");
+            def results = [upsertResult];
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def id = "evenFakerId";
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+            mockPartnerConnection.upsert('Id', _) >> results;
+            def resultId =  webServiceClient.createOrUpdateObject("Contact", 'Id', contact);
+
+        then:
+            assert resultId == "fakeId";
     }
 
     def "Should retrieve salesforce object as a map"() {
@@ -471,6 +495,31 @@ class SalesforceWebServiceClientTest extends Specification {
 
         then:
             assert result.success;
+
+    }
+
+
+    def "Should execute Soql Query"() {
+        given:
+
+            def mockConnectionClient = Mock(SalesforceConnectionClient);
+            def mockPartnerConnection = Mock(PartnerConnection);
+            def mockQueryResult = Mock(QueryResult);
+            def sObject = new SObject();
+            sObject.setField('abc', 123);
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
+
+        when:
+            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
+            mockPartnerConnection.query(_) >> mockQueryResult;
+            mockQueryResult.getRecords() >> [sObject];
+            def result = webServiceClient .executeSoqlQuery('abc123');
+
+
+        then:
+            assert result.get(0).keySet().contains('abc');
+            assert result.get(0).values().contains(123);
 
     }
 }

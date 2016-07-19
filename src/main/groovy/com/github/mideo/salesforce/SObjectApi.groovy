@@ -1,4 +1,4 @@
-package com.mideo.salesforce
+package com.github.mideo.salesforce
 
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.partner.FieldType;
@@ -10,9 +10,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 class SObjectApi {
     SalesforceConnectionClient salesforceConnectionClient;
 
+    static ObjectMapper mapper = new ObjectMapper();
 
     static SObject[] buildSObject(SObject sObject, Object data) {
-        ObjectMapper mapper = new ObjectMapper();
+
         mapper.convertValue(data, Map.class).each{
             k,v -> sObject.setSObjectField((String)k, v)
         }
@@ -30,22 +31,32 @@ class SObjectApi {
 
     }
 
-    String createSObject(String sObjectName, Object data) throws ConnectionException {
+    String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .create(buildSObject(sObject, data)).first().getId();
+                .create(buildSObject(sObject, deserializableObject)).first().getId();
 
 
     }
 
-    String updateSObject(String sObjectName, String id, Object data) throws ConnectionException {
+
+    String createOrUpdateSObject(String sObjectName, String externalIdFieldName, Object deserializableObject) throws ConnectionException {
+        SObject sObject = new SObject(sObjectName);
+        return salesforceConnectionClient
+                .getSalesForceWebServicePartnerConnection()
+                .upsert(externalIdFieldName, buildSObject(sObject, deserializableObject)).first().getId();
+    }
+
+
+
+    String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
         SObject sObject = new SObject(sObjectName);
         sObject.setId(id);
 
         return salesforceConnectionClient
                 .getSalesForceWebServicePartnerConnection()
-                .update(buildSObject(sObject, data)).first().getId();
+                .update(buildSObject(sObject, deserializableObject)).first().getId();
     }
 
     Map<String, Object> retrieveSObject(String sObjectName, String id) throws ConnectionException {
@@ -59,8 +70,6 @@ class SObjectApi {
         return columns.collectEntries{
             [it, sObjects[0].getField(it)]
         }
-
-
     }
 
 
@@ -70,6 +79,18 @@ class SObjectApi {
                 .getSalesForceWebServicePartnerConnection()
                 .delete(id).first().getId();
 
+    }
+
+    List<Map<String, Object>> executeSoqlQuery(String queryString){
+
+        return salesforceConnectionClient
+                .getSalesForceWebServicePartnerConnection()
+                .query(queryString)
+                .getRecords().collect{
+                    it.children.collectEntries{
+                        [it.getName().getLocalPart(), it.value]
+                    }
+                }
     }
 
     ExecuteAnonymousResult executeApexBlock(String apexCode){

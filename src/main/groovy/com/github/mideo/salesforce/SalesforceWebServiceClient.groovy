@@ -1,4 +1,4 @@
-package com.mideo.salesforce;
+package com.github.mideo.salesforce;
 
 
 import com.sforce.async.*
@@ -67,10 +67,15 @@ public class SalesforceWebServiceClient {
      * @return
      */
     public ExecuteAnonymousResult executeApexBlock(String apexCode) {
-        return SObjectApi.executeApexBlock(apexCode)
+        return SObjectApi.executeApexBlock(apexCode);
+    }
 
-
-
+    /**
+     * @param queryString - soql query
+     * @return
+     */
+    public List<Map<String,Object>> executeSoqlQuery(String queryString) {
+        return SObjectApi.executeSoqlQuery(queryString);
     }
 
     /**
@@ -139,6 +144,29 @@ public class SalesforceWebServiceClient {
      **/
     public String updateObject(String sObjectName, String id, Object serializableObject) throws ConnectionException {
         return SObjectApi.updateSObject(sObjectName, id, serializableObject);
+    }
+
+    /**
+     * @param sObjectName Salesforce Object Name
+     * @param serializableObject Any serializable object
+     * @param externalIdFieldName   saleforce sObject external Id field Name
+     * @return String value of updated Object Id
+     * @throws ConnectionException <br >Usage:<br >
+     *                             class Account {<br >
+     *                                 private String name;<br >
+     *                                 private String email;<br ><br >
+     *
+     *                                 public Account(String name, String email){<br >
+     *                                      this.name = name;<br >
+     *                                      this.email = email;<br >
+     *                                 }<br >
+     *                             }<br >
+     *                             Account account = new Account("testName SurnameUpdated", "testName1@example.com");<br>
+     *                             <p>
+     *                             webClient.createOrUpdateObject("Account","Id" account)<br>
+     **/
+    public String createOrUpdateObject(String sObjectName, String externalIdFieldName, Object serializableObject) throws ConnectionException {
+        return SObjectApi.createOrUpdateSObject(sObjectName, externalIdFieldName, serializableObject);
     }
 
     /**
