@@ -38,17 +38,36 @@ RequestSpecification requestSpecification = HttpRequestSpecificationBuilder.buil
 SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, requestSpecification);
 SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
 
+//Create sObject from POJO
+class Account {
+        def name;
+        def email;
+        def id;
+}
 
-//Create sObject
+Account account = new Account();
+account.name =  "testName bazz";
+account.email =  "x@y.com";
+account.id = webClient.createObject("Account", account);
+
+
+//Update sObject from POJO
+Account account = new Account();
+account.name =  "testName2 bazzer";
+account.email =  "acb@xys.com";
+String result = webClient.updateObject("Account",account.id,  account);
+
+
+//Create sObject from HashMap
 Map<String,Object> logData = new HashMap<>();
 logData.put("Short_Description__c","Api test"+ DateTime.now().toString());
 logData.put("Description__c","test description Api test"+ DateTime.now().toString()) 
-String result = webClient.createObject("Log__c", logData);
+String id = webClient.createObject("Log__c", logData);
 
             
-//Update sObject
+//Update sObject from HashMap
 logData.put("Exception_Type__c","dummyEx"+ DateTime.now().toString());
-result = webClient.updateObject("Log__c",result, logData);
+result = webClient.updateObject("Log__c",id, logData);
 
 
 //Retrieve Object
