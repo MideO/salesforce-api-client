@@ -6,7 +6,7 @@ import com.sforce.async.*;
 class Job {
 
     def jobInfo = new JobInfo();
-    def salesforceConnectionClient;
+    BulkConnection bulkConnection;
 
     Job newJobInfo(String jobName) {
         jobInfo = new JobInfo();
@@ -31,9 +31,7 @@ class Job {
     }
 
     JobInfo create() throws AsyncApiException {
-        jobInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
-                .createJob(jobInfo);
+        jobInfo = bulkConnection.createJob(jobInfo);
         return jobInfo;
     }
 

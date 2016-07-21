@@ -1,16 +1,17 @@
 package com.github.mideo.salesforce;
 
 import com.sforce.async.AsyncApiException;
-import com.sforce.async.BatchInfo;
+import com.sforce.async.BatchInfo
+import com.sforce.async.BulkConnection;
 import com.sforce.async.JobInfo;
 
 
 class Batch {
 
-    def batchInfo;
-    def jobInfo;
-    def inputStream;
-    def salesforceConnectionClient;
+    BatchInfo batchInfo;
+    JobInfo jobInfo;
+    InputStream inputStream;
+    BulkConnection bulkConnection;
 
     Batch addJob(JobInfo jobInfo) {
         batchInfo = new BatchInfo();
@@ -25,23 +26,20 @@ class Batch {
 
 
     Batch createStream() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
+        batchInfo = bulkConnection
                 .createBatchFromStream(jobInfo, inputStream);
         return this;
     }
 
     BatchInfo createBatch() throws AsyncApiException {
-        batchInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
+        batchInfo = bulkConnection
                 .createBatchFromStream(jobInfo, inputStream);
         return batchInfo;
     }
 
     PublishResult finaliseJob() throws AsyncApiException {
 
-        jobInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
+        jobInfo = bulkConnection
                 .closeJob(jobInfo.getId());
         return new PublishResult(
                 batchInfo:batchInfo,
@@ -50,8 +48,7 @@ class Batch {
     }
 
     public String getBatchStatus(String jobId, String batchId) throws AsyncApiException {
-        batchInfo = salesforceConnectionClient
-                .getSalesForceWebServiceBulkConnection()
+        batchInfo = bulkConnection
                 .getBatchInfo(jobId, batchId);
         return batchInfo
                 .getState()

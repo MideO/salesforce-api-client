@@ -1,5 +1,8 @@
 package com.github.mideo.salesforce
 
+import com.jayway.restassured.response.Response
+import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.specification.ResponseSpecification
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection
 import com.sforce.soap.partner.DeleteResult
@@ -7,9 +10,9 @@ import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.QueryResult
-import com.sforce.soap.partner.SaveResult
-import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.sobject.SObject
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import spock.lang.Specification
 
 import com.sforce.soap.partner.Field
@@ -24,7 +27,7 @@ class sObjectApiTest extends Specification {
             def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
             def mockField = Mock(Field);
             def mockFields = [mockField];
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def objectApi = new SObjectApi()
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
@@ -32,6 +35,7 @@ class sObjectApiTest extends Specification {
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "fruit";
             mockField.getType() >> FieldType.string;
+            objectApi.partnerConnection = mockConnectionClient.getSalesForceWebServicePartnerConnection()
             def resultName = objectApi.getDataColumns(tableName);
 
         then:
@@ -42,6 +46,7 @@ class sObjectApiTest extends Specification {
     class MockAccount {
         def name;
         def email;
+        def id;
     }
 
     def "Should Create SObject"() {
@@ -49,19 +54,29 @@ class sObjectApiTest extends Specification {
             def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
             def sObjectName = "Account";
 
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def mockResponseSpecification = Mock(ResponseSpecification)
+            def objectApi = new SObjectApi();
+            def response = Mock(Response)
+            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.create(_) >> results;
+
+            mockRequestSpecification.expect() >> mockResponseSpecification
+            mockResponseSpecification.statusCode(_) >> mockResponseSpecification
+            mockResponseSpecification.given() >> mockRequestSpecification
+            mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+            mockRequestSpecification.body(_) >> mockRequestSpecification
+            mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            response.print() >> JsonOutput.toJson([id: 'weweweer', success: true, errors: []])
+            mockRequestSpecification.post("/sobjects/${sObjectName}") >> response
+            objectApi.requestSpecification = mockRequestSpecification
+            objectApi.session = session
+
             def Id =  objectApi.createSObject(sObjectName, mockAccount);
 
         then:
-            assert Id == "fakeId";
+            assert Id == "weweweer";
     }
 
     def "Should Update SObject"() {
@@ -70,59 +85,114 @@ class sObjectApiTest extends Specification {
             def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
             def sObjectName = "Account";
 
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def id = "fakeid";
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def mockResponseSpecification = Mock(ResponseSpecification)
+            def objectApi = new SObjectApi();
+            def response = Mock(Response)
+            def id = 'wkhjwjek';
+            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.update(_) >> results;
+            mockRequestSpecification.expect() >> mockResponseSpecification
+            mockResponseSpecification.statusCode(_) >> mockResponseSpecification
+            mockResponseSpecification.given() >> mockRequestSpecification
+            mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+            mockRequestSpecification.body(_) >> mockRequestSpecification
+            mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
+            mockRequestSpecification.post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH") >> response
+            objectApi.requestSpecification = mockRequestSpecification
+            objectApi.session = session
+
             def Id =  objectApi.updateSObject(sObjectName, id, mockAccount);
 
         then:
-            assert Id == "fakeId";
+            assert Id == "fugazi";
     }
 
     def "Should Create Or Update SObject"() {
 
         given:
-            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com");
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com", id: 'wkhjwjek');
             def sObjectName = "Account";
 
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def id = "fakeid";
-            def UpsertResult = new UpsertResult( id: "fakeId");
-            def results = [UpsertResult];
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def mockResponseSpecification = Mock(ResponseSpecification)
+            def objectApi = new SObjectApi();
+            def response = Mock(Response)
+
+            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.upsert('Id', _) >> results;
+            mockRequestSpecification.expect() >> mockResponseSpecification
+            mockResponseSpecification.statusCode(_) >> mockResponseSpecification
+            mockResponseSpecification.given() >> mockRequestSpecification
+            mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+            mockRequestSpecification.body(_) >> mockRequestSpecification
+            mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
+            response.statusCode() >> statusCode
+
+            mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id,"UTF-8")}/?_HttpMethod=PATCH") >> response
+            objectApi.requestSpecification = mockRequestSpecification
+            objectApi.session = session
             def Id =  objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
 
         then:
-            assert Id == "fakeId";
+            assert Id == "fugazi";
+
+        where:
+            statusCode << [201 ,204]
+
+    }
+
+
+    def "Should Create Or Update SObject throw Exception"() {
+
+        given:
+        def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com", id: 'wkhjwjek');
+        def sObjectName = "Account";
+
+        def mockRequestSpecification = Mock(RequestSpecification)
+        def mockResponseSpecification = Mock(ResponseSpecification)
+        def objectApi = new SObjectApi();
+        def response = Mock(Response)
+
+        def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
+
+        when:
+        mockRequestSpecification.expect() >> mockResponseSpecification
+        mockResponseSpecification.statusCode(_) >> mockResponseSpecification
+        mockResponseSpecification.given() >> mockRequestSpecification
+        mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+        mockRequestSpecification.body(_) >> mockRequestSpecification
+        mockRequestSpecification.header(_, _) >> mockRequestSpecification
+        response.print() >> "Unauthorized"
+        response.statusCode() >> 401
+
+        mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id,"UTF-8")}/?_HttpMethod=PATCH") >> response
+        objectApi.requestSpecification = mockRequestSpecification
+        objectApi.session = session
+        objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
+
+        then:
+         thrown Exception
     }
 
     def "Should execute soql query"() {
 
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockPartnerConnection = Mock(PartnerConnection);
             def mockQueryResult = Mock(QueryResult);
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def objectApi = new SObjectApi();
             def sObject = new SObject();
             sObject.setField('abc', 123);
 
         when:
 
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
             mockPartnerConnection.query(_) >> mockQueryResult;
             mockQueryResult.getRecords() >> [sObject];
+            objectApi.partnerConnection = mockPartnerConnection
             def result = objectApi.executeSoqlQuery('abc123');
 
         then:
@@ -136,22 +206,23 @@ class sObjectApiTest extends Specification {
             sObject.setSObjectField("car", "Fiat Panda");
             sObject.setId("fakeId");
             def sObjects = [sObject];
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
             def mockField = Mock(Field);
             def mockFields = [mockField];
             def mockPartnerConnection = Mock(PartnerConnection);
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def objectApi = new SObjectApi();
 
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
+
             mockPartnerConnection.describeSObject("Mide") >> mockDescribeSObjectResult;
             mockDescribeSObjectResult.getFields() >> mockFields;
             mockField.getName() >> "car";
             mockField.getType() >> FieldType.string;
             def ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
+
+            objectApi.partnerConnection = mockPartnerConnection
 
             def resultMap =  objectApi.retrieveSObject("Mide", "fakeId");
 
@@ -162,17 +233,16 @@ class sObjectApiTest extends Specification {
 
     def "Should Delete SObject"() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockPartnerConnection = Mock(PartnerConnection);
             def id = "fakeid";
             def deleteResult= new DeleteResult( id: "fakeId");
             def deleteResults= [deleteResult];
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+
+            def objectApi = new SObjectApi();
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.delete(_) >> deleteResults;
-
+            objectApi.partnerConnection = mockPartnerConnection;
             def Id =  objectApi.deleteSObject(id);
 
         then:
@@ -181,15 +251,13 @@ class sObjectApiTest extends Specification {
 
     def "Should execute Anonymous Apex"() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockSoapConnection = Mock(SoapConnection);
             def executeAnonymousResult= new ExecuteAnonymousResult( success: true);
-            def objectApi = new SObjectApi(salesforceConnectionClient: mockConnectionClient);
+            def objectApi = new SObjectApi();
 
         when:
-            mockConnectionClient.getSalesforceSoapConnection() >> mockSoapConnection;
             mockSoapConnection.executeAnonymous("abc") >> executeAnonymousResult;
-
+            objectApi.soapConnection = mockSoapConnection
             def result =  objectApi.executeApexBlock("abc");
 
         then:

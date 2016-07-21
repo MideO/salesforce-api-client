@@ -13,15 +13,14 @@ class DataFetcherTest extends Specification {
             def jobInfoId = '123';
             def batchinfoId = 'abc';
             def resultId= 'z1x';
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def dataFetcher = new DataFetcher(salesforceConnectionClient: mockConnectionClient);
+
             def mockBulkConnection = Mock(BulkConnection);
+            def dataFetcher = new DataFetcher(bulkConnection: mockBulkConnection);
             def mockQueryResultList =  Mock(QueryResultList);
             def inputStream = new ByteArrayInputStream('"carbs","protein"\r\n"bread","chicken"\r\n"pasta","eggs"'.getBytes());
 
 
         when:
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
             mockBulkConnection.getQueryResultList(jobInfoId, batchinfoId) >> mockQueryResultList;
             mockQueryResultList.getResult() >> [resultId];
             mockBulkConnection.getQueryResultStream(jobInfoId, batchinfoId, resultId) >> inputStream;

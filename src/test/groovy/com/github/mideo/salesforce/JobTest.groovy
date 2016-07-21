@@ -51,15 +51,13 @@ class JobTest extends Specification {
     }
     def "Should Create JobInfo"() {
         given:
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             JobInfo mockJobInfo = Mock(JobInfo)
         when:
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockBulkConnection.createJob(_) >> mockJobInfo
-            mockConnectionClient.getSalesForceWebServiceBulkConnection().closeJob(_) >> mockJobInfo
+            mockBulkConnection.closeJob(_) >> mockJobInfo
 
-            Job job = new Job(salesforceConnectionClient: mockConnectionClient)
+            Job job = new Job(bulkConnection: mockBulkConnection)
                     .newJobInfo("jobby")
                     .setOperation(OperationEnum.insert)
                     .setContentType(ContentType.CSV)

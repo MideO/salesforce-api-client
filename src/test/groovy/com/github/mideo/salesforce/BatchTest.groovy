@@ -40,14 +40,12 @@ class BatchTest extends Specification {
 
     def "Should Create BatchInfo from CreateStream"() {
         given:
-
             inputStream = new ByteArrayInputStream('abcd'.getBytes());
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             BatchInfo mockBatchInfo = Mock(BatchInfo)
-            batch = new Batch(salesforceConnectionClient:mockConnectionClient)
+            batch = new Batch(bulkConnection: mockBulkConnection)
+
         when:
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockBulkConnection.createBatchFromStream(jobInfo, inputStream) >> mockBatchInfo
 
             Batch resultBatch = batch.addJob(jobInfo)
@@ -60,14 +58,12 @@ class BatchTest extends Specification {
     def "Should Create BatchInfo from CreateBatchInfo"() {
         given:
             inputStream = new ByteArrayInputStream('abcd'.getBytes());
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient)
             BulkConnection mockBulkConnection = Mock(BulkConnection)
             BatchInfo mockBatchInfo = Mock(BatchInfo)
-            batch = new Batch(salesforceConnectionClient:mockConnectionClient)
         when:
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+
             mockBulkConnection.createBatchFromStream(jobInfo, inputStream) >> mockBatchInfo
-            batch = new Batch(salesforceConnectionClient:mockConnectionClient)
+            batch = new Batch(bulkConnection: mockBulkConnection)
 
             BatchInfo batchInfo = batch.addJob(jobInfo)
                 .withInputStream(inputStream)
@@ -78,12 +74,11 @@ class BatchTest extends Specification {
 
     def "Should finalise Job"() {
         given:
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             BulkConnection mockBulkConnection = Mock(BulkConnection);
             JobInfo mockJobInfo = Mock(JobInfo);
             BatchInfo mockBatchInfo = Mock(BatchInfo);
             InputStream inputStream = new ByteArrayInputStream('abcd'.getBytes());
-            batch = new Batch(salesforceConnectionClient:mockConnectionClient);
+            batch = new Batch(bulkConnection: mockBulkConnection)
 
         when:
             mockJobInfo.getId() >> '1234';
@@ -92,7 +87,6 @@ class BatchTest extends Specification {
             mockBatchInfo.getState() >> BatchStateEnum.Failed;
             mockBulkConnection.closeJob(mockJobInfo.getId()) >> mockJobInfo;
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo;
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
             PublishResult publishResult = batch
                     .addJob(mockJobInfo)
                     .finaliseJob();
@@ -106,14 +100,12 @@ class BatchTest extends Specification {
 
     def "Should return get batch status"() {
         given:
-            SalesforceConnectionClient mockConnectionClient = Mock(SalesforceConnectionClient);
             BulkConnection mockBulkConnection = Mock(BulkConnection);
             BatchInfo mockBatchInfo = Mock(BatchInfo);
-            batch = new Batch(salesforceConnectionClient:mockConnectionClient)
+            batch = new Batch(bulkConnection: mockBulkConnection)
 
         when:
             mockBatchInfo.getState() >> BatchStateEnum.Failed;
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
             mockBulkConnection.getBatchInfo(_,_) >> mockBatchInfo;
         then:
             assert batch.getBatchStatus("abc","123") == "Failed";

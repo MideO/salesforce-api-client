@@ -14,13 +14,13 @@ import groovy.json.JsonSlurper;
 
 public class SalesforceConnectionClient {
 
-    private static BulkConnection salesForceWebServiceBulkConnection;
-    private static PartnerConnection salesForceWebServicePartnerConnection;
-    private static SoapConnection salesforceSoapConnection;
-    private final RequestSpecification requestSpecification;
+    static BulkConnection salesForceWebServiceBulkConnection;
+    static PartnerConnection salesForceWebServicePartnerConnection;
+    static SoapConnection salesforceSoapConnection;
+    final RequestSpecification requestSpecification;
     private SalesforceConfig salesforceConfig;
-    private String API_VERSION = "36.0";
-    private String API_ASYNC_PATH = "/services/async/";
+    private final String API_VERSION = "36.0";
+    private final String API_ASYNC_PATH = "/services/async/";
 
 
     public SalesforceConnectionClient(SalesforceConfig salesforceConfig, RequestSpecification requestSpecification) {
@@ -29,7 +29,7 @@ public class SalesforceConnectionClient {
     }
 
 
-    private Object getSalesforceSession() {
+    Object getSalesforceSession() {
         Response response = requestSpecification.baseUri(salesforceConfig.loginUrl)
                 .body(salesforceConfig.toString())
                 .header(new Header("Content-Type", "application/x-www-form-urlencoded"))

@@ -9,13 +9,11 @@ import com.sforce.async.QueryResultList
 import com.sforce.soap.apex.ExecuteAnonymousResult
 import com.sforce.soap.apex.SoapConnection
 import com.sforce.soap.partner.QueryResult
-import com.sforce.soap.partner.UpsertResult
 import com.sforce.soap.partner.DeleteResult
 import com.sforce.soap.partner.DescribeSObjectResult
 import com.sforce.soap.partner.Field
 import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection
-import com.sforce.soap.partner.SaveResult
 import com.sforce.soap.partner.sobject.SObject
 import spock.lang.Specification
 
@@ -41,7 +39,6 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockJobInfo = Mock(JobInfo)
             def mockBatchInfo = Mock(BatchInfo)
             def inputStream = new ByteArrayInputStream('abcd'.getBytes())
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
 
         when:
             mockJobInfo.getId() >> '1234';
@@ -53,7 +50,8 @@ class SalesforceWebServiceClientTest extends Specification {
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
 
-            def publishResult = webServiceClient.publishCsvToTable(inputStream, 'AccountTable')
+            def publishResult = new SalesforceWebServiceClient(mockConnectionClient)
+                    .publishCsvToTable(inputStream, 'AccountTable')
 
 
         then:
@@ -66,7 +64,7 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockConnectionClient = Mock(SalesforceConnectionClient)
             def mockBulkConnection = Mock(BulkConnection)
             def mockBatchInfo = Mock(BatchInfo)
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
         when:
             mockBatchInfo.getJobId() >> '1234'
@@ -76,7 +74,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
 
         then:
-            assert webServiceClient.getPublishedDataStatus(mockBatchInfo.getJobId(), mockBatchInfo.getId()) == 'InProgress'
+            assert new SalesforceWebServiceClient(mockConnectionClient).getPublishedDataStatus(mockBatchInfo.getJobId(), mockBatchInfo.getId()) == 'InProgress'
     }
 
     def "Should Export Data From Table HashMap"() {
@@ -93,7 +91,6 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockFields = [mockField];
 
             def mockQueryResultList =  Mock(QueryResultList);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
 
         when:
             def resultId= 'z1x';
@@ -120,7 +117,7 @@ class SalesforceWebServiceClientTest extends Specification {
 
             mockQueryResultList.getResult() >> [resultId];
             mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
-            def result = webServiceClient.exportDataFromTable(tableName)
+            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName)
 
         then:
             assert result.size() == 1;
@@ -141,7 +138,7 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockFields = [mockField];
 
             def mockQueryResultList =  Mock(QueryResultList);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
         when:
             def resultId= 'z1x';
@@ -167,7 +164,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());
             mockBatchInfo.getState() >> BatchStateEnum.Completed;
             mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            def result = webServiceClient.exportDataFromTable(tableName, ["fruit"]);
+            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"]);
 
 
         then:
@@ -189,7 +186,7 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockFields = [mockField];
 
             def mockQueryResultList =  Mock(QueryResultList);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
         when:
             def resultId= 'z1x';
@@ -215,7 +212,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
             mockBatchInfo.getState() >> BatchStateEnum.Completed;
             mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            def result = webServiceClient.exportDataFromTable(tableName, ["fruit"], filters);
+            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"], filters);
 
         then:
             assert result.size() == 1;
@@ -237,8 +234,6 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockFields = [mockField];
 
             def mockQueryResultList =  Mock(QueryResultList);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-
 
         when:
             def resultId= 'z1x';
@@ -264,7 +259,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
             mockBatchInfo.getState() >> BatchStateEnum.Failed;
             mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            webServiceClient.exportDataFromTable(tableName, ["fruit"], filters);
+            new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"], filters);
 
         then:
             thrown SalesforceApiOperationException;
@@ -285,7 +280,7 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockFields = [mockField];
 
             def mockQueryResultList =  Mock(QueryResultList);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
         when:
             def resultId= 'z1x';
@@ -312,6 +307,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
             mockBatchInfo.getState() >> BatchStateEnum.Completed;
             mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def result = webServiceClient.exportDataFromTable(tableName, filters);
 
         then:
@@ -325,40 +321,34 @@ class SalesforceWebServiceClientTest extends Specification {
             def sObjectName = "Alastair";
             def data = ["car":"abarth","insurance":"10m"];
             def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.create(_) >> results;
-            def Id =  webServiceClient.createObject(sObjectName, data);
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.createObject(sObjectName, data);
 
 
         then:
-            assert Id == "fakeId";
+            1 * mockObjectApi.createSObject(sObjectName, data)
     }
 
     def "Should update Object"() {
         given:
-            def sObjectName = "Mide";
-            def data = ["car":"Fiat Panda","insurance":"£2"];
+            def sObjectName = "Alastair";
+            def data = ["car":"abarth","insurance":"10m"];
             def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def id = "evenFakerId";
+            def mockObjectApi = Mock(SObjectApi);
+            def id = "dfghj";
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.update(_) >> results;
-            def resultID =  webServiceClient.updateObject(sObjectName, id, data);
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.updateObject(sObjectName, id, data);
 
 
         then:
-            assert resultID == "fakeId";
+            1 * mockObjectApi.updateSObject(sObjectName, id, data)
     }
 
 
@@ -372,61 +362,52 @@ class SalesforceWebServiceClientTest extends Specification {
         given:
             def sObjectName = "Contact"
             def contact = new MockContact(name:"test name",email: "a@b.com")
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.create(_) >> results;
-            def Id =  webServiceClient.createObject(sObjectName, contact);
-
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.createObject(sObjectName, contact);
 
         then:
-          assert Id == "fakeId";
+            1 * mockObjectApi.createSObject(sObjectName, contact)
     }
 
     def "Should update Object from POJO"() {
         given:
-
+            def sObjectName = "Contact"
             def contact = new MockContact(name:"test name",email: "a@b.com")
             def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def saveResult = new SaveResult( id: "fakeId");
-            def results = [saveResult];
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def id = "evenFakerId";
+            def mockObjectApi = Mock(SObjectApi);
+            def id = "dfghj";
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.update(_) >> results;
-            def resultId =  webServiceClient.updateObject("Contact", id, contact);
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.updateObject("Contact", id, contact);
 
 
         then:
-            assert resultId == "fakeId";
+            1 * mockObjectApi.updateSObject(sObjectName, id, contact)
     }
 
 
     def "Should create or update Object from POJO"() {
         given:
+            def sObjectName = "Contact"
             def contact = new MockContact(name:"test name",email: "a@b.com")
             def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def upsertResult = new UpsertResult( id: "fakeId");
-            def results = [upsertResult];
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def id = "evenFakerId";
+            def mockObjectApi = Mock(SObjectApi);
+            def id = "dfghj";
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.upsert('Id', _) >> results;
-            def resultId =  webServiceClient.createOrUpdateObject("Contact", 'Id', contact);
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.createOrUpdateObject(sObjectName,'Id', contact);
 
         then:
-            assert resultId == "fakeId";
+            1 * mockObjectApi.createOrUpdateSObject(sObjectName, 'Id', contact)
     }
 
     def "Should retrieve salesforce object as a map"() {
@@ -440,7 +421,7 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
             def mockField = Mock(Field);
             def mockFields = [mockField];
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
 
         when:
@@ -451,7 +432,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockField.getType() >> FieldType.string;
             def ids = ["fakeId"]
             mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
-
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def resultMap  = webServiceClient.retrieveObject("Mide", "fakeId");
 
 
@@ -465,12 +446,12 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockPartnerConnection = Mock(PartnerConnection);
             def deleteResult= new DeleteResult( id: "fakeId");
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def id = "evenFakerId";
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
             mockPartnerConnection.delete(_) >> deleteResult;
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def resultID =  webServiceClient.deleteObject(id);
 
 
@@ -484,12 +465,11 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockConnectionClient = Mock(SalesforceConnectionClient);
             def mockSoapConnection = Mock(SoapConnection);
             def executeAnonymousResult= new ExecuteAnonymousResult( success: true);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-
 
         when:
             mockConnectionClient.getSalesforceSoapConnection() >> mockSoapConnection;
             mockSoapConnection.executeAnonymous("abcs") >> executeAnonymousResult;
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def result = webServiceClient.executeApexBlock("abcs");
 
 
@@ -507,13 +487,14 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockQueryResult = Mock(QueryResult);
             def sObject = new SObject();
             sObject.setField('abc', 123);
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+
 
 
         when:
             mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
             mockPartnerConnection.query(_) >> mockQueryResult;
             mockQueryResult.getRecords() >> [sObject];
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def result = webServiceClient .executeSoqlQuery('abc123');
 
 

@@ -1,6 +1,8 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'signing'
+
 
 
 group 'com.github.mideo'
@@ -76,21 +78,53 @@ task wrapper(type: Wrapper) {
     gradleVersion =  2.13
 }
 
+signing {
+    sign configurations.archives
+}
+
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository url: "file://${System.properties['user.home']}/workspace/salesforce-api-client/snapshots"
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            pom.groupId = rootProject.group
-            pom.artifactId = rootProject.name
-            pom.version = version
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
 
             pom.project {
-                name = 'Salesforce Api Client'
-                packaging = 'jar'
-                description = 'Salesforce Api Client'
+                name 'Salesforce Api Client'
+                packaging 'jar'
+                description 'Salesforce Api Client'
+
+            scm {
+                connection 'git@github.com:MideO/salesforce-api-client.git'
+                developerConnection 'git@github.com:MideO/salesforce-api-client.git'
+                url 'https://github.com/MideO/salesforce-api-client'
             }
+
+            licenses {
+                license {
+                    name 'The Apache License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+
+            developers {
+                developer {
+                    id 'mideo'
+                    name 'Mide Ojikutu'
+                    email 'mide.ojikutu@gmail.com'
+                }
+            }
+
+            }
+
         }
     }
 }
