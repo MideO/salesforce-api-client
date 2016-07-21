@@ -80,6 +80,7 @@ task wrapper(type: Wrapper) {
 
 signing {
     sign configurations.archives
+    required = { gradle.taskGraph.hasTask("uploadArchives") && !version.endsWith("SNAPSHOT") }
 }
 
 
@@ -88,13 +89,13 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: "${System.env.ossrhUsername}", password: "${System.env.ossrhPassword}")
+            }
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                authentication(userName: "${System.env.ossrhUsername}", password: "${System.env.ossrhPassword}")
             }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
 
 
             pom.project {
