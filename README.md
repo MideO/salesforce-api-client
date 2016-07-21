@@ -11,7 +11,6 @@
 ```groovy
 repositories {
     mavenCentral()
-    maven {url 'https://github.com/MideO/salesforce-api-client/raw/mvn-repo/releases'}
 }
 
 ```
