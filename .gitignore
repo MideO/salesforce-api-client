@@ -21,3 +21,4 @@ salesforce-api-client.iws
 /gradle/
 /gradlew
 /gradlew.bat
+gradle.properties.local
