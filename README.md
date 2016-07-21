@@ -34,7 +34,7 @@ SalesforceConfig config = new SalesforceConfig("https://test.salesforce.com")
                 .userName("a@b.com")
                 .userToken("gfhjk")
                 .password("fghjkl");
-RequestSpecification requestSpecification = HttpRequestSpecificationBuilder.build();
+RequestSpecification requestSpecification = HttpRequest.getSpecification();
 SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, requestSpecification);
 SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
 

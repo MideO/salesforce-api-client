@@ -23,8 +23,8 @@ public class SalesforceWebServiceClient {
      *                                   <p>
      *                                   <br >Usage:<br >
      *                                   SalesforceConfig config = new SalesforceConfig("abc").clientId("wewew").clientSecret("dfdfd").userName("sdsds").password("sdsds").userToken("sdssd");<br >
-     *                                   HttpRequest httpRequestSpecificationBuilder = new HttpRequest();<br >
-     *                                   SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, httpRequestSpecificationBuilder);<br >
+     *                                   RequestSpecification httpRequestSpecification = HttpRequest.getSpecification();<br >
+     *                                   SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, httpRequestSpecification);<br >
      *                                   SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);<br >
      */
     public SalesforceWebServiceClient(SalesforceConnectionClient salesforceConnectionClient) {
