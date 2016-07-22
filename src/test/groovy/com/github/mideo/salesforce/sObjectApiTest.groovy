@@ -12,7 +12,6 @@ import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.QueryResult
 import com.sforce.soap.partner.sobject.SObject
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import spock.lang.Specification
 
 import com.sforce.soap.partner.Field
@@ -58,7 +57,7 @@ class sObjectApiTest extends Specification {
             def mockResponseSpecification = Mock(ResponseSpecification)
             def objectApi = new SObjectApi();
             def response = Mock(Response)
-            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
+
 
         when:
 
@@ -71,7 +70,9 @@ class sObjectApiTest extends Specification {
             response.print() >> JsonOutput.toJson([id: 'weweweer', success: true, errors: []])
             mockRequestSpecification.post("/sobjects/${sObjectName}") >> response
             objectApi.requestSpecification = mockRequestSpecification
-            objectApi.session = session
+            objectApi.restExplorerUrl = 'tryghjkl';
+            objectApi.sessionToken = 'tryghjkl';
+
 
             def Id =  objectApi.createSObject(sObjectName, mockAccount);
 
@@ -90,7 +91,7 @@ class sObjectApiTest extends Specification {
             def objectApi = new SObjectApi();
             def response = Mock(Response)
             def id = 'wkhjwjek';
-            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
+
 
         when:
             mockRequestSpecification.expect() >> mockResponseSpecification
@@ -102,12 +103,13 @@ class sObjectApiTest extends Specification {
             response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
             mockRequestSpecification.post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH") >> response
             objectApi.requestSpecification = mockRequestSpecification
-            objectApi.session = session
+            objectApi.restExplorerUrl = 'tryghjkl';
+            objectApi.sessionToken = 'tryghjkl';
 
-            def Id =  objectApi.updateSObject(sObjectName, id, mockAccount);
+            def resultId =  objectApi.updateSObject(sObjectName, id, mockAccount);
 
         then:
-            assert Id == "fugazi";
+            assert resultId == id;
     }
 
     def "Should Create Or Update SObject"() {
@@ -121,9 +123,10 @@ class sObjectApiTest extends Specification {
             def objectApi = new SObjectApi();
             def response = Mock(Response)
 
-            def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
+
 
         when:
+            mockRequestSpecification.given() >> mockRequestSpecification
             mockRequestSpecification.expect() >> mockResponseSpecification
             mockResponseSpecification.statusCode(_) >> mockResponseSpecification
             mockResponseSpecification.given() >> mockRequestSpecification
@@ -135,11 +138,12 @@ class sObjectApiTest extends Specification {
 
             mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id,"UTF-8")}/?_HttpMethod=PATCH") >> response
             objectApi.requestSpecification = mockRequestSpecification
-            objectApi.session = session
+            objectApi.restExplorerUrl = 'tryghjkl';
+            objectApi.sessionToken = 'tryghjkl';
             def Id =  objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
 
         then:
-            assert Id == "fugazi";
+            assert Id == "wkhjwjek";
 
         where:
             statusCode << [201 ,204]
@@ -158,7 +162,7 @@ class sObjectApiTest extends Specification {
         def objectApi = new SObjectApi();
         def response = Mock(Response)
 
-        def session = new JsonSlurper().parseText('{"instance_url":"dfghjkl", "access_token":"dfghjkl"}')
+
 
         when:
         mockRequestSpecification.expect() >> mockResponseSpecification
@@ -172,11 +176,45 @@ class sObjectApiTest extends Specification {
 
         mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id,"UTF-8")}/?_HttpMethod=PATCH") >> response
         objectApi.requestSpecification = mockRequestSpecification
-        objectApi.session = session
+        objectApi.restExplorerUrl = 'tryghjkl';
+        objectApi.sessionToken = 'tryghjkl';
         objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
 
         then:
          thrown Exception
+    }
+
+    def "Should Create Or Update SObject throw Exception if id not set"() {
+
+        given:
+            def mockAccount = new MockAccount(name: "testName bazz", email: "x@y.com", );
+            def sObjectName = "Account";
+
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def mockResponseSpecification = Mock(ResponseSpecification)
+            def objectApi = new SObjectApi();
+            def response = Mock(Response)
+
+
+
+        when:
+            mockRequestSpecification.expect() >> mockResponseSpecification
+            mockResponseSpecification.statusCode(_) >> mockResponseSpecification
+            mockResponseSpecification.given() >> mockRequestSpecification
+            mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+            mockRequestSpecification.body(_) >> mockRequestSpecification
+            mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            response.print() >> "Unauthorized"
+            response.statusCode() >> 401
+
+            mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id,"UTF-8")}/?_HttpMethod=PATCH") >> response
+            objectApi.requestSpecification = mockRequestSpecification
+            objectApi.restExplorerUrl = 'tryghjkl';
+            objectApi.sessionToken = 'tryghjkl';
+            objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
+
+        then:
+            thrown Exception
     }
 
     def "Should execute soql query"() {

@@ -8,13 +8,14 @@ import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException
+import com.sforce.ws.ConnectorConfig
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 
 class SObjectApi {
     RequestSpecification requestSpecification;
-    Object session;
+    String restExplorerUrl, sessionToken;
     PartnerConnection partnerConnection;
     SoapConnection soapConnection;
 
@@ -28,10 +29,10 @@ class SObjectApi {
 
     String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
         Response response =  requestSpecification.expect().statusCode(201).given()
-                .baseUri(session.instance_url)
+                .baseUri(restExplorerUrl)
                 .body(JsonOutput.toJson(deserializableObject))
                 .header("Accept", "application/json")
-                .header('Authorization', "Bearer ${session.access_token}")
+                .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}");
 
@@ -40,19 +41,27 @@ class SObjectApi {
 
 
     String createOrUpdateSObject(String sObjectName, String externalIdFieldName, Object deserializableObject) throws Exception {
-        Response response =  requestSpecification
-                .baseUri(session.instance_url as String)
+        if( deserializableObject.id ==  null ) {
+            throw new Exception("${sObjectName} must be set")
+        }
+
+        String id = deserializableObject.id
+        deserializableObject.id=null
+        Response response =  requestSpecification.given()
+                .baseUri(restExplorerUrl)
                 .body(JsonOutput.toJson(deserializableObject))
                 .header("Accept", "application/json")
-                .header('Authorization', "Bearer ${session.access_token}")
+                .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
-                .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(deserializableObject.id,"UTF-8")}/?_HttpMethod=PATCH");
+                .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(id,"UTF-8")}/?_HttpMethod=PATCH");
         int succeeded = ((int) response.statusCode()/100)
         if( succeeded != 2) {
             throw new Exception("Failed to create or update ${sObjectName}")
         }
-
-        return new JsonSlurper().parseText(response.print()).id;
+        if( succeeded == 204) {
+            return deserializableObject.id;
+        }
+        return id;
 
 
     }
@@ -60,15 +69,15 @@ class SObjectApi {
 
 
     String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
-        Response response =  requestSpecification.expect().statusCode(204).given()
-                .baseUri(session.instance_url as String)
+        requestSpecification.expect().statusCode(204).given()
+                .baseUri(restExplorerUrl)
                 .body(JsonOutput.toJson(deserializableObject))
                 .header("Accept", "application/json")
-                .header('Authorization', "Bearer ${session.access_token}")
+                .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH");
 
-        return new JsonSlurper().parseText(response.print()).id;
+        return id;
     }
 
     Map<String, Object> retrieveSObject(String sObjectName, String id) throws ConnectionException {

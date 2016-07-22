@@ -22,9 +22,9 @@ public class SalesforceWebServiceClient {
      * @param salesforceConnectionClient Initiated Salesforce Connection client
      *                                   <p>
      *                                   <br >Usage:<br >
-     *                                   SalesforceConfig config = new SalesforceConfig("abc").clientId("wewew").clientSecret("dfdfd").userName("sdsds").password("sdsds").userToken("sdssd");<br >
+     *                                   SalesforceConfig connectorConfig = new SalesforceConfig("abc").clientId("wewew").clientSecret("dfdfd").userName("sdsds").password("sdsds").userToken("sdssd");<br >
      *                                   RequestSpecification httpRequestSpecification = HttpRequest.getSpecification();<br >
-     *                                   SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, httpRequestSpecification);<br >
+     *                                   SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(connectorConfig, httpRequestSpecification);<br >
      *                                   SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);<br >
      */
     public SalesforceWebServiceClient(SalesforceConnectionClient salesforceConnectionClient) {
@@ -37,7 +37,8 @@ public class SalesforceWebServiceClient {
         sObjectApi = new SObjectApi(
                 partnerConnection: salesforceConnectionClient.getSalesForceWebServicePartnerConnection(),
                 soapConnection: salesforceConnectionClient.getSalesforceSoapConnection(),
-                session: salesforceConnectionClient.getSalesforceSession(),
+                restExplorerUrl: salesforceConnectionClient.getRestExplorerEndpoint(),
+                sessionToken: salesforceConnectionClient.getSessionToken(),
                 requestSpecification: salesforceConnectionClient.requestSpecification
         )
 

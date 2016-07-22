@@ -19,8 +19,9 @@ public class SalesforceConnectionClient {
     static SoapConnection salesforceSoapConnection;
     final RequestSpecification requestSpecification;
     private SalesforceConfig salesforceConfig;
-    private final String API_VERSION = "36.0";
-    private final String API_ASYNC_PATH = "/services/async/";
+    private restExplorerEndpoint;
+    private sessionToken;
+
 
 
     public SalesforceConnectionClient(SalesforceConfig salesforceConfig, RequestSpecification requestSpecification) {
@@ -34,17 +35,20 @@ public class SalesforceConnectionClient {
                 .body(salesforceConfig.toString())
                 .header(new Header("Content-Type", "application/x-www-form-urlencoded"))
                 .post("/services/oauth2/token");
-        return new JsonSlurper().parseText(response.print());
+        Object session = new JsonSlurper().parseText(response.print());
+        sessionToken = session.access_token;
+        restExplorerEndpoint  = "${session.instance_url}/services/data/v${salesforceConfig.version}";
+        return session;
 
     }
 
-    private ConnectorConfig getConnectorConfig(String apiVersion, String apiAsyncPath, String apiSoapPath) {
+    private ConnectorConfig getConnectorConfig(String apiSoapPath) {
         def session = getSalesforceSession();
 
         ConnectorConfig connectorConfig = new ConnectorConfig(
-                restEndpoint: session.instance_url + apiAsyncPath + apiVersion,
-                serviceEndpoint: session.instance_url+ apiSoapPath + apiVersion,
-                authEndpoint: session.instance_url+ apiSoapPath + apiVersion,
+                restEndpoint: "${session.instance_url}/services/async/${salesforceConfig.version}",
+                serviceEndpoint: "${session.instance_url}${apiSoapPath}${salesforceConfig.version}",
+                authEndpoint: "${session.instance_url}${apiSoapPath}${salesforceConfig.version}",
                 sessionId: session.access_token,
                 compression: true,
                 traceMessage: false
@@ -53,9 +57,23 @@ public class SalesforceConnectionClient {
         return connectorConfig;
     }
 
+    String getRestExplorerEndpoint() {
+        if(restExplorerEndpoint == null){
+            getSalesforceSession();
+        }
+        return restExplorerEndpoint
+    }
+
+    String getSessionToken(){
+        if(restExplorerEndpoint == null){
+            getSalesforceSession();
+        }
+        return sessionToken;
+    }
+
     BulkConnection getSalesForceWebServiceBulkConnection() throws AsyncApiException {
         if (salesForceWebServiceBulkConnection == null) {
-            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, "/services/Soap/s/");
+            ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
             salesForceWebServiceBulkConnection = new BulkConnection(config);
         }
         return salesForceWebServiceBulkConnection;
@@ -63,7 +81,7 @@ public class SalesforceConnectionClient {
 
     PartnerConnection getSalesForceWebServicePartnerConnection() throws ConnectionException {
         if (salesForceWebServicePartnerConnection == null) {
-            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, "/services/Soap/u/");
+            ConnectorConfig config = getConnectorConfig("/services/Soap/u/");
             salesForceWebServicePartnerConnection = new PartnerConnection(config);
         }
         return salesForceWebServicePartnerConnection;
@@ -71,7 +89,7 @@ public class SalesforceConnectionClient {
 
     SoapConnection getSalesforceSoapConnection(){
         if (salesforceSoapConnection == null) {
-            ConnectorConfig config = getConnectorConfig(API_VERSION, API_ASYNC_PATH, "/services/Soap/s/");
+            ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
             salesforceSoapConnection = new SoapConnection(config);
         }
         return salesforceSoapConnection

@@ -11,7 +11,8 @@ class SalesforceConfigTest extends Specification {
                     .clientSecret("dfdfd")
                     .userName("sdsds")
                     .password("sdsds")
-                    .userToken("sdssd");
+                    .userToken("sdssd")
+                    .apiVersion(40.0);
 
         then:
             assert config.toString() == "grant_type=password&client_id=wewew&client_secret=dfdfd&username=sdsds&password=sdsdssdssd";

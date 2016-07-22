@@ -8,6 +8,7 @@ class SalesforceConfig {
     String user;
     String password;
     String token;
+    static String version = '36.0'
 
     public SalesforceConfig(String loginUrl) {
         this.loginUrl = loginUrl;
@@ -35,6 +36,11 @@ class SalesforceConfig {
 
     public SalesforceConfig userToken(String token) {
         this.token = token;
+        return this;
+    }
+
+    public SalesforceConfig apiVersion(Double version) {
+        this.version = version;
         return this;
     }
 

@@ -48,6 +48,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockBulkConnection.createJob(_) >> mockJobInfo
             mockBulkConnection.closeJob(mockJobInfo.getId()) >> mockJobInfo
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
+            mockConnectionClient.getRestExplorerEndpoint() >> 'http://gfhjk'
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
 
             def publishResult = new SalesforceWebServiceClient(mockConnectionClient)

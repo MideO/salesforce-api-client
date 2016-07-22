@@ -8,18 +8,21 @@ import spock.lang.Specification
 
 class SalesforceConnectionClientTest extends Specification {
 
+    def mockRequestSpecification
+    def config
+    def mockResponsePayload
+    def setup(){
+        mockRequestSpecification = Mock(RequestSpecification)
+        config = new SalesforceConfig("http://test.salesforce.com")
+                .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
+                .clientSecret("6513759911120645968")
+                .userName("foo@bar.com")
+                .password("test1234")
+                .userToken("b2Sm7wA81TOm6sErbLuYtRrP").apiVersion(36.0);
+        mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
+    }
+
     def "Should return BulkConnection"() {
-        given:
-            def mockRequestSpecification = Mock(RequestSpecification)
-            def config = new SalesforceConfig("http://test.salesforce.com")
-                    .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
-                    .clientSecret("6513759911120645968")
-                    .userName("foo@bar.com")
-                    .password("test1234")
-                    .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
-            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
-
-
         when:
 
             mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
@@ -39,18 +42,6 @@ class SalesforceConnectionClientTest extends Specification {
     }
 
     def "Should return PartnerConnection"() {
-        given:
-
-            def mockRequestSpecification = Mock(RequestSpecification)
-            def config = new SalesforceConfig("http://test.salesforce.com")
-                .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
-                .clientSecret("6513759911120645968")
-                .userName("foo@bar.com")
-                .password("test1234")
-                .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
-            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
-
-
         when:
 
             mockRequestSpecification.baseUri("http://test.salesforce.com") >> mockRequestSpecification
@@ -70,17 +61,6 @@ class SalesforceConnectionClientTest extends Specification {
     }
 
     def "Should return SoapConnection"() {
-        given:
-
-            def mockRequestSpecification = Mock(RequestSpecification)
-            def config = new SalesforceConfig("http://test.salesforce.com")
-                .clientId("3MVG9_7ddP9KqTzcnteMkjh7zaTQmgPEDY13bQhFRo4MXr9PhbzVZqWtfERXQYZn7UQgLUxzv6BNSwWxPlPWX")
-                .clientSecret("6513759911120645968")
-                .userName("foo@bar.com")
-                .password("test1234")
-                .userToken("b2Sm7wA81TOm6sErbLuYtRrP");
-            def mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
-
 
         when:
 
