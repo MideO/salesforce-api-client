@@ -11,6 +11,9 @@ import com.sforce.ws.ConnectionException
 import com.sforce.ws.ConnectorConfig
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.codehaus.jackson.map.ObjectMapper
+
+import static groovy.json.JsonOutput.toJson
 
 
 class SObjectApi {
@@ -18,24 +21,44 @@ class SObjectApi {
     String restExplorerUrl, sessionToken;
     PartnerConnection partnerConnection;
     SoapConnection soapConnection;
+    static ObjectMapper mapper = new ObjectMapper();
+
+    static String deNulledJson(Object object){
+        Map dataMap = mapper.convertValue(object, Map.class)
+
+        return toJson(dataMap.findAll { it.value != null });
+
+    }
+
+
+
+
+
+    private static void validateResponse(Response response, String sObjectName){
+        int succeeded = ((int) response.statusCode()/100)
+        if( succeeded != 2) {
+            throw new Exception("Failed to create or update ${sObjectName}\n Response Code ${response.statusCode()}\n Response Content: ${response.print()}")
+        }
+    }
 
     List<String> getDataColumns(String targetObjectName) throws ConnectionException {
         return  partnerConnection
                 .describeSObject(targetObjectName)
                 .getFields()
-                .findAll { it.getType().equals(FieldType.address) ? [] : it}
-                .collect{ it.getName() }
+                .findAll {
+            it.getType() == FieldType.address ? [] : it
+        }.collect{ it.getName() }
     }
 
     String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
-        Response response =  requestSpecification.expect().statusCode(201).given()
+        Response response =  requestSpecification.given()
                 .baseUri(restExplorerUrl)
-                .body(JsonOutput.toJson(deserializableObject))
+                .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}");
-
+        validateResponse(response, sObjectName);
         return new JsonSlurper().parseText(response.print()).id;
     }
 
@@ -49,17 +72,14 @@ class SObjectApi {
         deserializableObject.id=null
         Response response =  requestSpecification.given()
                 .baseUri(restExplorerUrl)
-                .body(JsonOutput.toJson(deserializableObject))
+                .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(id,"UTF-8")}/?_HttpMethod=PATCH");
-        int succeeded = ((int) response.statusCode()/100)
-        if( succeeded != 2) {
-            throw new Exception("Failed to create or update ${sObjectName}")
-        }
-        if( succeeded == 204) {
-            return deserializableObject.id;
+        validateResponse(response, sObjectName);
+        if( response.statusCode() == 204) {
+            return new JsonSlurper().parseText(response.print()).id;
         }
         return id;
 
@@ -69,14 +89,14 @@ class SObjectApi {
 
 
     String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
-        requestSpecification.expect().statusCode(204).given()
+        Response response = requestSpecification.given()
                 .baseUri(restExplorerUrl)
-                .body(JsonOutput.toJson(deserializableObject))
+                .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH");
-
+        validateResponse(response, sObjectName);
         return id;
     }
 
@@ -105,10 +125,10 @@ class SObjectApi {
         return partnerConnection
                 .query(queryString)
                 .getRecords().collect{
-                    it.children.collectEntries{
-                        [it.getName().getLocalPart(), it.value]
-                    }
-                }
+            it.children.collectEntries{
+                [it.getName().getLocalPart(), it.value]
+            }
+        }
     }
 
     ExecuteAnonymousResult executeApexBlock(String apexCode){
