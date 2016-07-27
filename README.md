@@ -113,3 +113,51 @@ columns.add("Description__c");
 List<Map<String, String>> dataList = webClient.exportDataFromTable("Order__c", columns, filter);
 
 ```
+
+
+#Ant Tasks
+```Java
+
+Retrieving sObjects to csv 
+Define config json {<sObjectName>: [<comma seperated list of columns>]}
+
+e.g. conf.json
+    {
+        "Settings__c" : ["Name","Value__c"],
+        "Account": ["Name","Email"]
+    }
+In build.xml
+<taskdef resource="com/github/mideo/salesforce/antlib.xml"  
+             uri="antlib:com.github.mideo.salesforce" 
+             classpath="lib/salesforce-api-client-0.0.1-SNAPSHOT.jar"/>
+<!-- persistSObjectToCSV data to csv files   -->
+<target name="persistSObjectToCSV" description="Retrieve Custom Settings to SFDC">
+       <antlib:com.github.mideo.salesforce:persistSObjectToCSV 
+        configFileName="conf.json"
+        csvFilesRelativePath="config/customSettings"
+        userName="${sf.username}" 
+        password="${sf.password}" 
+        serverUrl="${sf.serverurl}" 
+        />
+</target>
+
+ 
+Publishing/Dataload csv files from directory to sObject
+
+In build.xml
+<taskdef resource="com/github/mideo/salesforce/antlib.xml"  
+         uri="antlib:com.github.mideo.salesforce" 
+         classpath="lib/salesforce-api-client-0.0.1-SNAPSHOT.jar"/> 
+    
+    <!-- publishCSV data to sfdc   -->
+<target name="publishCSV" description="Publish Custom Settings to SFDC">
+       <antlib:com.github.mideo.salesforce:publishCSV 
+        csvFilesRelativePath="config/settings"
+        userName="${sf.username}" 
+        password="${sf.password}" 
+        serverUrl="${sf.serverurl}" 
+       />
+</target>
+
+
+```
