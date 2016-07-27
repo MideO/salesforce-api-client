@@ -1,0 +1,4 @@
+<antlib>
+    <typedef name="publishCSV" classname="com.github.mideo.salesforce.ant.PublishTask"/>
+    <typedef name="persistSObjectToCSV" classname="com.github.mideo.salesforce.ant.RetrieveTask"/>
+</antlib>

@@ -26,6 +26,9 @@ class PublishResultTest extends Specification {
 
     def "Should be true If Job State is Closed and Batch is not Failed is Successful"() {
 
+        given:
+            jobInfo.numberRecordsFailed = 0;
+
         when:
             publishResult = new PublishResult(
                 batchInfo:batchInfo,
@@ -34,9 +37,9 @@ class PublishResultTest extends Specification {
             assert publishResult.isPublished();
     }
 
-    def "Should be False If Job State is not Closed and Batch is not Failed is Successful"() {
+    def "Should be False If Job numberRecordsFailed is not 0and Batch is not Failed is Successful"() {
         given:
-            jobInfo.state = JobStateEnum.Failed;
+            jobInfo.numberRecordsFailed = 5;
         when:
             publishResult = new PublishResult(
                 batchInfo:batchInfo,

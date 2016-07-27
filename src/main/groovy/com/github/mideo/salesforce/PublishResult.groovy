@@ -10,6 +10,7 @@ class PublishResult {
     JobInfo jobInfo;
 
     public boolean isPublished() {
-        return (batchInfo.getState() != null && batchInfo.getState() != BatchStateEnum.Failed && jobInfo.getState() == JobStateEnum.Closed);
+        return (batchInfo.getState() != null && batchInfo.getState() != BatchStateEnum.Failed && jobInfo.numberRecordsFailed == 0 );
     }
+
 }

@@ -1,7 +1,5 @@
 package com.github.mideo.salesforce;
 
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSpecification;
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BulkConnection
@@ -9,17 +7,16 @@ import com.sforce.soap.apex.SoapConnection;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig
-import groovy.json.JsonSlurper;
+
 
 
 public class SalesforceConnectionClient {
 
-    static BulkConnection salesForceWebServiceBulkConnection;
-    static PartnerConnection salesForceWebServicePartnerConnection;
-    static SoapConnection salesforceSoapConnection;
     final RequestSpecification requestSpecification;
     private SalesforceConfig salesforceConfig;
-    private restExplorerEndpoint;
+    String restExplorerEndpoint;
+    String instanceUrl;
+    static ConnectorConfig sessionConfig
     private sessionToken;
 
 
@@ -30,71 +27,60 @@ public class SalesforceConnectionClient {
     }
 
 
-    Object getSalesforceSession() {
-        Response response = requestSpecification.baseUri(salesforceConfig.loginUrl)
-                .body(salesforceConfig.toString())
-                .header(new Header("Content-Type", "application/x-www-form-urlencoded"))
-                .post("/services/oauth2/token");
-        Object session = new JsonSlurper().parseText(response.print());
-        sessionToken = session.access_token;
-        restExplorerEndpoint  = "${session.instance_url}/services/data/v${salesforceConfig.version}";
-        return session;
-
-    }
-
-    private ConnectorConfig getConnectorConfig(String apiSoapPath) {
-        def session = getSalesforceSession();
+    private void logIn() {
+        if (sessionConfig != null) {
+            return;
+        }
 
         ConnectorConfig connectorConfig = new ConnectorConfig(
-                restEndpoint: "${session.instance_url}/services/async/${salesforceConfig.version}",
-                serviceEndpoint: "${session.instance_url}${apiSoapPath}${salesforceConfig.version}",
-                authEndpoint: "${session.instance_url}${apiSoapPath}${salesforceConfig.version}",
-                sessionId: session.access_token,
+                username: salesforceConfig.user,
+                password:salesforceConfig.passwordAndToken,
+                authEndpoint: "${salesforceConfig.loginUrl}/services/Soap/u/${salesforceConfig.version}"
+        )
+        sessionConfig = new PartnerConnection(connectorConfig).config;
+        instanceUrl = sessionConfig.serviceEndpoint.split('.com')[0] + '.com'
+        restExplorerEndpoint  = "${instanceUrl}/services/data/v${salesforceConfig.version}";
+        sessionToken = sessionConfig.sessionId;
+    }
+
+    ConnectorConfig getConnectorConfig(String apiSoapPath) {
+        logIn();
+        return new ConnectorConfig(
+                restEndpoint: "${instanceUrl}/services/async/${salesforceConfig.version}",
+                serviceEndpoint: "${instanceUrl}${apiSoapPath}${salesforceConfig.version}",
+                authEndpoint: "${instanceUrl}${apiSoapPath}${salesforceConfig.version}",
+                sessionId: sessionToken,
                 compression: true,
                 traceMessage: false
-        );
-
-        return connectorConfig;
+        )
     }
 
     String getRestExplorerEndpoint() {
         if(restExplorerEndpoint == null){
-            getSalesforceSession();
+            logIn();
         }
         return restExplorerEndpoint
     }
 
     String getSessionToken(){
         if(restExplorerEndpoint == null){
-            getSalesforceSession();
+            logIn();
         }
         return sessionToken;
     }
 
     BulkConnection getSalesForceWebServiceBulkConnection() throws AsyncApiException {
-        if (salesForceWebServiceBulkConnection == null) {
-            ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
-            salesForceWebServiceBulkConnection = new BulkConnection(config);
-        }
-        return salesForceWebServiceBulkConnection;
+        ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
+        return new BulkConnection(config);
     }
 
     PartnerConnection getSalesForceWebServicePartnerConnection() throws ConnectionException {
-        if (salesForceWebServicePartnerConnection == null) {
-            ConnectorConfig config = getConnectorConfig("/services/Soap/u/");
-            salesForceWebServicePartnerConnection = new PartnerConnection(config);
-        }
-        return salesForceWebServicePartnerConnection;
+        ConnectorConfig config = getConnectorConfig("/services/Soap/u/");
+        return new PartnerConnection(config);
     }
 
     SoapConnection getSalesforceSoapConnection(){
-        if (salesforceSoapConnection == null) {
-            ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
-            salesforceSoapConnection = new SoapConnection(config);
-        }
-        return salesforceSoapConnection
-
+        ConnectorConfig config = getConnectorConfig("/services/Soap/s/");
+        return new SoapConnection(config);
     }
-
-
 }
