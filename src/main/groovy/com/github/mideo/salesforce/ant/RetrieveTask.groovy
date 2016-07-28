@@ -26,12 +26,18 @@ class RetrieveTask extends SalesforceTask {
     }
 
     public void execute() {
+
         webClient = createWebClient();
         csvFilesRelativePath = csvFilesRelativePath.endsWith('/') ? csvFilesRelativePath : csvFilesRelativePath + '/'
 
         def configJson
+        File configFile = new File("${csvFilesRelativePath}${configFileName}");
+        if (!configFile.exists()){
+            println "Directory not found, ensure the config file exists `${csvFilesRelativePath}${configFileName}`"
+            return;
+        }
         try {
-            new File("${csvFilesRelativePath}${configFileName}").withReader {
+            configFile.withReader {
                 line -> configJson = slurper.parse(line)
             }
         }catch(JsonException jex){

@@ -25,6 +25,11 @@ class PublishTask extends SalesforceTask{
     }
     public void execute(){
         webClient = createWebClient();
+        File directory = new File(csvFilesRelativePath)
+        if (!directory.exists()){
+            println "Directory not found, ensure the directory exists `${csvFilesRelativePath}`"
+            return;
+        }
         new File(csvFilesRelativePath).eachFileRecurse (FileType.FILES) {
 
            file -> if(file.name.endsWith('.csv') ){

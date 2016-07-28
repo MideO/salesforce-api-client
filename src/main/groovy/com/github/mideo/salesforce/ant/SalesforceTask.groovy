@@ -3,14 +3,13 @@ package com.github.mideo.salesforce.ant
 import org.apache.tools.ant.Task
 
 
-public class SalesforceTask extends Task{
+public class SalesforceTask extends Task {
 
-    protected String csvFilesRelativePath;
-    protected String configFileName;
+    protected String configFileName = 'conf.json';
+    protected String csvFilesRelativePath = 'config/customSettings';
     protected String serverUrl;
     protected String userName;
     protected String password;
-
 
 
     public void setConfigFileName(String configFile) {
