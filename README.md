@@ -127,12 +127,13 @@ e.g. conf.json
         "Account": ["Name","Email"]
     }
 In build.xml
+<project name="Sample usage of Salesforce Ant tasks" xmlns:sfApi="antlib:com.github.mideo.salesforce">
 <taskdef resource="com/github/mideo/salesforce/antlib.xml"  
              uri="antlib:com.github.mideo.salesforce" 
              classpath="lib/salesforce-api-client-0.0.1-SNAPSHOT.jar"/>
 <!-- persistSObjectToCSV data to csv files   -->
 <target name="persistSObjectToCSV" description="Retrieve Custom Settings to SFDC">
-       <antlib:com.github.mideo.salesforce:persistSObjectToCSV 
+       <sfApi:persistSObjectToCSV 
         configFileName="conf.json"
         csvFilesRelativePath="config/customSettings"
         userName="${sf.username}" 
@@ -151,7 +152,7 @@ In build.xml
     
     <!-- publishCSV data to sfdc   -->
 <target name="publishCSV" description="Publish Custom Settings to SFDC">
-       <antlib:com.github.mideo.salesforce:publishCSV 
+       <sfApi:publishCSV 
         csvFilesRelativePath="config/settings"
         userName="${sf.username}" 
         password="${sf.password}" 
