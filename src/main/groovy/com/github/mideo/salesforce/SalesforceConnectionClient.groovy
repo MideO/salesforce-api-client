@@ -1,6 +1,5 @@
 package com.github.mideo.salesforce;
 
-import com.jayway.restassured.specification.RequestSpecification;
 import com.sforce.async.AsyncApiException;
 import com.sforce.async.BulkConnection
 import com.sforce.soap.apex.SoapConnection;
@@ -11,8 +10,6 @@ import com.sforce.ws.ConnectorConfig
 
 
 public class SalesforceConnectionClient {
-
-    final RequestSpecification requestSpecification;
     private SalesforceConfig salesforceConfig;
     String restExplorerEndpoint;
     String instanceUrl;
@@ -21,9 +18,8 @@ public class SalesforceConnectionClient {
 
 
 
-    public SalesforceConnectionClient(SalesforceConfig salesforceConfig, RequestSpecification requestSpecification) {
+    public SalesforceConnectionClient(SalesforceConfig salesforceConfig) {
         this.salesforceConfig = salesforceConfig;
-        this.requestSpecification = requestSpecification;
     }
 
 

@@ -1,28 +1,25 @@
 package com.github.mideo.salesforce
 
-import com.jayway.restassured.specification.RequestSpecification
-
 import com.sforce.ws.ConnectorConfig
 import spock.lang.Specification
 
 
 class SalesforceConnectionClientTest extends Specification {
 
-    def mockRequestSpecification
     def config
     def mockResponsePayload
     SalesforceConnectionClient connectionClient
     ConnectorConfig connectorConfig
 
     def setup(){
-        mockRequestSpecification = Mock(RequestSpecification)
+
         config = new SalesforceConfig("http://test.salesforce.com")
                 .userName("foo@bar.com")
                 .passwordAndToken("test1234b2Sm7wA81TOm6sErbLuYtRrP")
                 .apiVersion(36.0);
         mockResponsePayload = "{\"instance_url\": \"test_url.com\", \"access_token\": \"1234567\"}";
 
-        connectionClient = Spy(SalesforceConnectionClient, constructorArgs: [config, mockRequestSpecification])
+        connectionClient = Spy(SalesforceConnectionClient, constructorArgs: [config])
         connectionClient.instanceUrl = "test_url.com"
         connectorConfig = new ConnectorConfig(
                 sessionId: "1234567",

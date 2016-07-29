@@ -1,6 +1,5 @@
 package com.github.mideo.salesforce.ant
 
-import com.github.mideo.http.HttpRequest
 import com.github.mideo.salesforce.PublishResult
 import com.github.mideo.salesforce.SalesforceConfig
 import com.github.mideo.salesforce.SalesforceConnectionClient
@@ -19,7 +18,7 @@ class PublishTask extends SalesforceTask{
         config = new SalesforceConfig(serverUrl)
                 .userName(userName)
                 .passwordAndToken(password);
-        connectionClient = new SalesforceConnectionClient(config, HttpRequest.getSpecification());
+        connectionClient = new SalesforceConnectionClient(config);
         new SalesforceWebServiceClient(connectionClient);
 
     }

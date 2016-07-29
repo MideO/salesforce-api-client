@@ -23,7 +23,6 @@ public class SalesforceWebServiceClient {
      *                                   <p>
      *                                   <br >Usage:<br >
      *                                   SalesforceConfig connectorConfig = new SalesforceConfig("abc").clientId("wewew").clientSecret("dfdfd").userName("sdsds").password("sdsds").userToken("sdssd");<br >
-     *                                   RequestSpecification httpRequestSpecification = HttpRequest.getSpecification();<br >
      *                                   SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(connectorConfig, httpRequestSpecification);<br >
      *                                   SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);<br >
      */
@@ -39,7 +38,6 @@ public class SalesforceWebServiceClient {
                 soapConnection: salesforceConnectionClient.getSalesforceSoapConnection(),
                 restExplorerUrl: salesforceConnectionClient.getRestExplorerEndpoint(),
                 sessionToken: salesforceConnectionClient.getSessionToken(),
-                requestSpecification: salesforceConnectionClient.requestSpecification
         )
 
 

@@ -1,5 +1,6 @@
 package com.github.mideo.salesforce
 
+import com.jayway.restassured.RestAssured
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSpecification
 import com.sforce.soap.apex.ExecuteAnonymousResult
@@ -8,8 +9,6 @@ import com.sforce.soap.partner.FieldType
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException
-import com.sforce.ws.ConnectorConfig
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.codehaus.jackson.map.ObjectMapper
 
@@ -17,7 +16,6 @@ import static groovy.json.JsonOutput.toJson
 
 
 class SObjectApi {
-    RequestSpecification requestSpecification;
     String restExplorerUrl, sessionToken;
     PartnerConnection partnerConnection;
     SoapConnection soapConnection;
@@ -31,8 +29,9 @@ class SObjectApi {
     }
 
 
-
-
+    RequestSpecification getSpecification() {
+        return RestAssured.given();
+    }
 
     private static void validateResponse(Response response, String sObjectName){
         int succeeded = ((int) response.statusCode()/100)
@@ -51,7 +50,7 @@ class SObjectApi {
     }
 
     String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
-        Response response =  requestSpecification.given()
+        Response response =  getSpecification()
                 .baseUri(restExplorerUrl)
                 .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
@@ -70,7 +69,7 @@ class SObjectApi {
 
         String id = deserializableObject.id
         deserializableObject.id=null
-        Response response =  requestSpecification.given()
+        Response response =  getSpecification()
                 .baseUri(restExplorerUrl)
                 .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
@@ -89,7 +88,7 @@ class SObjectApi {
 
 
     String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
-        Response response = requestSpecification.given()
+        Response response = getSpecification()
                 .baseUri(restExplorerUrl)
                 .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")

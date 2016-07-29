@@ -5,6 +5,8 @@
 
 ###Setup dependency
 
+Requires: JDK "1.8"
+
 #### In build.gradle
 
 #####Add maven url
@@ -33,8 +35,7 @@ SalesforceConfig config = new SalesforceConfig("https://test.salesforce.com")
                 .userName("a@b.com")
                 .userToken("gfhjk")
                 .password("fghjkl");
-RequestSpecification requestSpecification = HttpRequest.getSpecification();
-SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config, requestSpecification);
+SalesforceConnectionClient connectionClient = new SalesforceConnectionClient(config);
 SalesforceWebServiceClient webClient = new SalesforceWebServiceClient(connectionClient);
 
 //Create sObject from POJO
