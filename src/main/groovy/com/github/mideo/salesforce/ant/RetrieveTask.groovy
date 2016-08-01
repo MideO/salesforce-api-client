@@ -29,7 +29,7 @@ class RetrieveTask extends SalesforceTask {
         webClient = createWebClient();
         csvFilesRelativePath = csvFilesRelativePath.endsWith('/') ? csvFilesRelativePath : csvFilesRelativePath + '/'
 
-        def configJson
+        def configJson;
         File configFile = new File("${csvFilesRelativePath}${configFileName}");
         if (!configFile.exists()){
             println "Directory not found, ensure the config file exists `${csvFilesRelativePath}${configFileName}`"
@@ -49,11 +49,14 @@ class RetrieveTask extends SalesforceTask {
                 csvFileToWrite.delete();
             }
 
-            List<Map<String, String>> exportedData = webClient.exportDataFromTable(it.key, it.value);
-            List headersFromConfigFile = it.value
-            println "Writing file to ${csvFileToWrite.getName()} to ${csvFilesRelativePath}"
-            writeRecordsToCSV(csvFileToWrite, headersFromConfigFile, exportedData)
-
+            try{
+                List<Map<String, String>> exportedData = webClient.exportDataFromTable(it.key, it.value);
+                List headersFromConfigFile = it.value
+                println "Writing file to ${csvFileToWrite.getName()} to ${csvFilesRelativePath}"
+                writeRecordsToCSV(csvFileToWrite, headersFromConfigFile, exportedData)
+            }catch (Exception e){
+                throw new Exception("Failed to retrieve sObject: ${it.key}\n ${e.message}");
+            }
         }
 
     }

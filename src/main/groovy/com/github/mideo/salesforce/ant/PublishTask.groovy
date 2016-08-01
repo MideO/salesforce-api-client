@@ -4,6 +4,8 @@ import com.github.mideo.salesforce.PublishResult
 import com.github.mideo.salesforce.SalesforceConfig
 import com.github.mideo.salesforce.SalesforceConnectionClient
 import com.github.mideo.salesforce.SalesforceWebServiceClient
+import com.sforce.async.AsyncApiException
+import com.sforce.ws.ConnectionException
 import groovy.io.FileType
 import groovy.json.JsonOutput
 
@@ -35,10 +37,23 @@ class PublishTask extends SalesforceTask{
                def sObjectName = file.name - '.csv'
                println "Publishing custom settings for ${sObjectName}"
                webClient.exportDataFromTable(sObjectName, ['Id']).each {
-                   webClient.deleteObject(it['Id']);
+                   try{
+                       webClient.deleteObject(it['Id']);
+                    }catch(ConnectionException connectionException){
+                   throw new Exception(
+                           "Failed to delete \nObject: ${sObjectName}\nCode: ${connectionException.getMessage()}"
+                   );
                }
-
-               result = webClient.publishCsvToTable(new FileInputStream(file), sObjectName)
+               }
+               try {
+                   result = webClient.publishCsvToTable(new FileInputStream(file), sObjectName)
+               }catch(AsyncApiException asyncApiException){
+                   throw new Exception(
+                           "Failed to publish CSV: \n"
+                           +"Code: ${asyncApiException.getExceptionCode().name()}"
+                           +"Message: ${asyncApiException.getExceptionMessage()}"
+                   );
+               }
 
                if (!result.isPublished()){
                    throw new Exception(JsonOutput.prettyPrint(JsonOutput.toJson(result)));
