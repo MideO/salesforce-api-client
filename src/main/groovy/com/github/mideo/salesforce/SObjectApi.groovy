@@ -40,13 +40,22 @@ class SObjectApi {
         }
     }
 
+    private static void validateResponse(Response response){
+        int succeeded = ((int) response.statusCode()/100)
+        if( succeeded != 2) {
+            throw new Exception("Failed to retrieve data \n Response Code ${response.statusCode()}\n Response Content: ${response.print()}")
+        }
+    }
+
     List<String> getDataColumns(String targetObjectName) throws ConnectionException {
-        return  partnerConnection
-                .describeSObject(targetObjectName)
-                .getFields()
-                .findAll {
-            it.getType() == FieldType.address ? [] : it
-        }.collect{ it.getName() }
+        Response response = getSpecification()
+                .baseUri(restExplorerUrl)
+                .header('Authorization', "Bearer ${sessionToken}")
+                .get("/sobjects/${targetObjectName}/describe");
+        validateResponse(response);
+        return new JsonSlurper().parseText(response.getBody().asString()).fields.collect()
+                .findAll { it.type == FieldType.address.name() ? [] : it
+                }.collect{ it.name }
     }
 
     String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
@@ -58,7 +67,7 @@ class SObjectApi {
                 .header("Content-Type", "application/json")
                 .post("/sobjects/${sObjectName}");
         validateResponse(response, sObjectName);
-        return new JsonSlurper().parseText(response.print()).id;
+        return new JsonSlurper().parseText(response.body.asString()).id;
     }
 
 
@@ -78,7 +87,7 @@ class SObjectApi {
                 .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(id,"UTF-8")}/?_HttpMethod=PATCH");
         validateResponse(response, sObjectName);
         if( response.statusCode() == 204) {
-            return new JsonSlurper().parseText(response.print()).id;
+            return new JsonSlurper().parseText(response.body.asString()).id;
         }
         return id;
 
@@ -119,15 +128,15 @@ class SObjectApi {
 
     }
 
-    List<Map<String, Object>> executeSoqlQuery(String queryString){
-
-        return partnerConnection
-                .query(queryString)
-                .getRecords().collect{
-            it.children.collectEntries{
-                [it.getName().getLocalPart(), it.value]
-            }
-        }
+    List<Map<String, Object>> executeSoqlQuery(String queryString) throws Exception{
+        Response response = getSpecification()
+                .baseUri(restExplorerUrl)
+                .header('Authorization', "Bearer ${sessionToken}")
+                .get("/query/?q=${queryString}");
+        validateResponse(response);
+        return new JsonSlurper().parseText(response.body.asString()).records.each{
+            it.remove('attributes')
+        }.collect()
     }
 
     ExecuteAnonymousResult executeApexBlock(String apexCode){

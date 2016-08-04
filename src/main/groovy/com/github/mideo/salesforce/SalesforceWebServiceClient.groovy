@@ -5,17 +5,16 @@ import com.sforce.async.*
 import com.sforce.soap.apex.ExecuteAnonymousResult
 
 import com.sforce.ws.ConnectionException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils
 
 
 public class SalesforceWebServiceClient {
 
 
     private SalesforceConnectionClient salesforceConnectionClient;
-    long publishStatusCheckTimeout = 30000;
     Job job;
     Batch batch;
-    DataFetcher dataFetcher;
+
     SObjectApi sObjectApi;
 
     /**
@@ -31,7 +30,6 @@ public class SalesforceWebServiceClient {
 
         job = new Job(bulkConnection: salesforceConnectionClient.getSalesForceWebServiceBulkConnection());
         batch = new Batch(bulkConnection: salesforceConnectionClient.getSalesForceWebServiceBulkConnection());
-        dataFetcher = new DataFetcher(bulkConnection: salesforceConnectionClient.getSalesForceWebServiceBulkConnection());
 
         sObjectApi = new SObjectApi(
                 partnerConnection: salesforceConnectionClient.getSalesForceWebServicePartnerConnection(),
@@ -54,20 +52,16 @@ public class SalesforceWebServiceClient {
                     .toInsert(ContentType.CSV)
                 .create();
 
-        return batch.addJob(jobInfo)
+        PublishResult publishResult = batch.addJob(jobInfo)
                 .withInputStream(csvInputStream)
-                .createStream()
-                .finaliseJob();
+                .createStream().finaliseJob();
 
-    }
+        if (getBatchDataStatus(jobInfo.getId(), batch.batchInfo.id) == BatchStateEnum.Failed.name()) {
 
-    /**
-     * @param publishStatusCheckTimeoutInMilliSeconds - Polling timeout in milliseconds
-     * @return SalesforceWebServiceClient
-     */
-    public SalesforceWebServiceClient setPublishStatusCheckTimeout(long publishStatusCheckTimeoutInMilliSeconds) {
-        this.publishStatusCheckTimeout = publishStatusCheckTimeoutInMilliSeconds;
-        return this;
+            throw new SalesforceApiOperationException("Failed to Publish data: \n" + batch.batchInfo);
+        }
+        return publishResult
+
     }
 
 
@@ -93,7 +87,7 @@ public class SalesforceWebServiceClient {
      * @return String value of Status of Published Batch
      * @throws AsyncApiException Saleforce Api AsyncApiException
      **/
-    public String getPublishedDataStatus(String jobId, String batchId) throws AsyncApiException {
+    public String getBatchDataStatus(String jobId, String batchId) throws AsyncApiException {
         return batch.getBatchStatus(jobId, batchId);
 
     }
@@ -263,7 +257,7 @@ public class SalesforceWebServiceClient {
      *                             filters.put("id", "abc123");<br>
      *                             webClient.exportDataFromTable("Account", columns);<br >
      **/
-    public List<Map<String, String>> exportDataFromTable(String targetObjectName, List<String> columns, Map<String, String> filters) throws Exception {
+    public List<Map<String, Object>> exportDataFromTable(String targetObjectName, List<String> columns, Map<String, String> filters) throws Exception {
         String QUERY_TEMPLATE = "SELECT %s FROM " + targetObjectName;
         List<String> filterList = new ArrayList<>();
 
@@ -273,39 +267,12 @@ public class SalesforceWebServiceClient {
         QUERY_TEMPLATE += filterList.size() == 0 ? "" : " WHERE " + StringUtils.join(filterList, ',');
 
         String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns, ','));
-        ByteArrayInputStream soqlInputStream = new ByteArrayInputStream(query.getBytes());
+        try {
+            return sObjectApi.executeSoqlQuery(query)
+        }catch (Exception e){
 
-
-        JobInfo jobInfo = job.newJobInfo(targetObjectName)
-                .withParallelConcurrencyMode()
-                .toQuery(ContentType.CSV)
-                .setOperation(OperationEnum.query)
-                .create();
-
-
-        BatchInfo batchInfo = batch.addJob(jobInfo)
-                .withInputStream(soqlInputStream)
-                .createBatch();
-
-        long counter = 0;
-        long sleepTime = 1000;
-
-        try{
-            while (counter <= publishStatusCheckTimeout) {
-            if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Completed.name())) {
-
-                return dataFetcher.fetchData(jobInfo.getId(), batchInfo.getId());
-            }
-            if (getPublishedDataStatus(jobInfo.getId(), batchInfo.getId()).equals(BatchStateEnum.Failed.name())) {
-
-                throw new SalesforceApiOperationException("Salesforce Bulk Api Operation Failed: \n" + batch.batchInfo);
-            }
-            counter += sleepTime;
-            Thread.sleep(sleepTime);
-        }}finally {
-            publishStatusCheckTimeout = 30000;
+                throw new SalesforceApiOperationException(e.getMessage())
         }
-
-        throw new SalesforceApiOperationException("Salesforce Bulk Api Operation timedOut after "+counter+" Milliseconds \n" + batch.batchInfo);
     }
+
 }

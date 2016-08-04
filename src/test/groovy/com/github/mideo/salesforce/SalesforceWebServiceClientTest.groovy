@@ -20,17 +20,6 @@ import spock.lang.Specification
 
 class SalesforceWebServiceClientTest extends Specification {
 
-    def "Should set publishStatusCheckTimeout"() {
-        given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient)
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-
-        when:
-            webServiceClient.setPublishStatusCheckTimeout(2000);
-
-        then:
-            assert webServiceClient.publishStatusCheckTimeout == 2000;
-    }
     def "Should publish CSV to salesforce table"() {
 
         given:
@@ -50,6 +39,7 @@ class SalesforceWebServiceClientTest extends Specification {
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
             mockConnectionClient.getRestExplorerEndpoint() >> 'http://gfhjk'
             mockBulkConnection.createBatchFromStream(mockJobInfo, inputStream) >> mockBatchInfo
+            mockBulkConnection.getBatchInfo(mockJobInfo.getId(), _) >> mockBatchInfo
 
             def publishResult = new SalesforceWebServiceClient(mockConnectionClient)
                     .publishCsvToTable(inputStream, 'AccountTable')
@@ -75,246 +65,90 @@ class SalesforceWebServiceClientTest extends Specification {
             mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection
 
         then:
-            assert new SalesforceWebServiceClient(mockConnectionClient).getPublishedDataStatus(mockBatchInfo.getJobId(), mockBatchInfo.getId()) == 'InProgress'
+            assert new SalesforceWebServiceClient(mockConnectionClient).getBatchDataStatus(mockBatchInfo.getJobId(), mockBatchInfo.getId()) == 'InProgress'
     }
 
-    def "Should Export Data From Table HashMap"() {
+    def "Should Export Data From Table "() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockBulkConnection = Mock(BulkConnection);
-
-            def mockJobInfo = Mock(JobInfo)
-            def mockBatchInfo = Mock(BatchInfo)
-
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-            def mockQueryResultList =  Mock(QueryResultList);
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            def resultId= 'z1x';
-            def tableName = "ProductsTable"
-            mockJobInfo.getId() >> '1234';
-            mockBatchInfo.getId() >> '6789';
-
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockBulkConnection.getQueryResultList(_, _) >> mockQueryResultList;
-            mockQueryResultList.getResult() >> [resultId];
-            mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "fruit";
-            mockField.getType() >> FieldType.string;
-
-
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
-            mockBulkConnection.createJob(_) >> mockJobInfo;
-
-            mockBulkConnection.createBatchFromStream(_, _) >> mockBatchInfo;
-            mockBatchInfo.getState() >> BatchStateEnum.Completed;
-            mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-
-
-            mockQueryResultList.getResult() >> [resultId];
-            mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
-            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName)
+            mockObjectApi.getDataColumns(_) >>  ["fruit"]
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.exportDataFromTable('acd');
 
         then:
-            assert result.size() == 1;
-            assert result[0].get("fruit") == "orange";
+            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd')
+
     }
 
-    def "Should Export Selected ColumnData From Table HashMap"() {
+    def "Should Export Selected ColumnData From Table "() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockBulkConnection = Mock(BulkConnection);
-
-            def mockJobInfo = Mock(JobInfo)
-            def mockBatchInfo = Mock(BatchInfo)
-
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-            def mockQueryResultList =  Mock(QueryResultList);
-
+        def mockConnectionClient = Mock(SalesforceConnectionClient)
+        def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+        def mockObjectApi = Mock(SObjectApi);
 
         when:
-            def resultId= 'z1x';
-            def tableName = "ProductsTable"
-            mockJobInfo.getId() >> '1234';
-            mockBatchInfo.getId() >> '6789';
-
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockBulkConnection.getQueryResultList(_, _) >> mockQueryResultList;
-            mockQueryResultList.getResult() >> [resultId];
-            mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "fruit";
-
-
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
-            mockBulkConnection.createJob(_) >> mockJobInfo;
-
-            mockBulkConnection.createBatchFromStream(_, _) >> mockBatchInfo;
-
-
-            mockQueryResultList.getResult() >> [resultId];
-            mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());
-            mockBatchInfo.getState() >> BatchStateEnum.Completed;
-            mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"]);
-
+        mockObjectApi.getDataColumns(_) >>  ["fruit"]
+        webServiceClient.sObjectApi = mockObjectApi
+        webServiceClient.exportDataFromTable('acd', ["fruit"]);
 
         then:
-            assert result.size() == 1;
-            assert result[0].get("fruit") == "orange";
+        1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd')
+
     }
 
-    def "Should Export filtered Selected ColumnData From Table HashMap"() {
+    def "Should Export filtered Selected ColumnData From Table "() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockBulkConnection = Mock(BulkConnection);
-
-            def mockJobInfo = Mock(JobInfo)
-            def mockBatchInfo = Mock(BatchInfo)
-
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-            def mockQueryResultList =  Mock(QueryResultList);
-
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            def resultId= 'z1x';
-            def tableName = "ProductsTable"
-            mockJobInfo.getId() >> '1234';
-            mockBatchInfo.getId() >> '6789';
-            def filters = ["fruit":"orane"];
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockBulkConnection.getQueryResultList(_, _) >> mockQueryResultList;
-            mockQueryResultList.getResult() >> [resultId];
-            mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "fruit";
-
-
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
-            mockBulkConnection.createJob(_) >> mockJobInfo;
-
-            mockBulkConnection.createBatchFromStream(_, _) >> mockBatchInfo;
-
-
-            mockQueryResultList.getResult() >> [resultId];
-            mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
-            mockBatchInfo.getState() >> BatchStateEnum.Completed;
-            mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            def result = new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"], filters);
+            mockObjectApi.getDataColumns(_) >>  ["fruit"]
+            webServiceClient.sObjectApi = mockObjectApi
+            def filters = ["fruit":"orange"];
+            webServiceClient.exportDataFromTable('acd', ["fruit"], filters);
 
         then:
-            assert result.size() == 1;
-            assert result[0].get("fruit") == "orange";
+            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd WHERE fruit=\'orange\'')
     }
 
 
-    def "Should throw exception if batch query fails"() {
+    def "Should throw exception if query fails"() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockBulkConnection = Mock(BulkConnection);
-
-            def mockJobInfo = Mock(JobInfo)
-            def mockBatchInfo = Mock(BatchInfo)
-
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-            def mockQueryResultList =  Mock(QueryResultList);
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            def resultId= 'z1x';
-            def tableName = "ProductsTable"
-            mockJobInfo.getId() >> '1234';
-            mockBatchInfo.getId() >> '6789';
-            def filters = ["fruit":"orane"];
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockBulkConnection.getQueryResultList(_, _) >> mockQueryResultList;
-            mockQueryResultList.getResult() >> [resultId];
-            mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "fruit";
-
-
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
-            mockBulkConnection.createJob(_) >> mockJobInfo;
-
-            mockBulkConnection.createBatchFromStream(_, _) >> mockBatchInfo;
-
-
-            mockQueryResultList.getResult() >> [resultId];
-            mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
-            mockBatchInfo.getState() >> BatchStateEnum.Failed;
-            mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            new SalesforceWebServiceClient(mockConnectionClient).exportDataFromTable(tableName, ["fruit"], filters);
+            mockObjectApi.executeSoqlQuery(_) >> new Exception()
+            webServiceClient.sObjectApi = mockObjectApi
+            def filters = ["fruit":"orange"];
+            webServiceClient.exportDataFromTable('addd', ["fruit"], filters);
 
         then:
             thrown SalesforceApiOperationException;
     }
 
 
-    def "Should Export filtered Data From Table HashMap"() {
+    def "Should Export filtered Data From Table"() {
         given:
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockBulkConnection = Mock(BulkConnection);
-
-            def mockJobInfo = Mock(JobInfo)
-            def mockBatchInfo = Mock(BatchInfo)
-
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-            def mockQueryResultList =  Mock(QueryResultList);
-
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            def resultId= 'z1x';
-            def tableName = "ProductsTable"
-            mockJobInfo.getId() >> '1234';
-            mockBatchInfo.getId() >> '6789';
-            Map<String, String> filters = ["fruit":"orane"];
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockBulkConnection.getQueryResultList(_, _) >> mockQueryResultList;
-            mockQueryResultList.getResult() >> [resultId];
-            mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "fruit";
-            mockField.getType() >> FieldType.string;
-
-
-            mockConnectionClient.getSalesForceWebServiceBulkConnection() >> mockBulkConnection;
-            mockBulkConnection.createJob(_) >> mockJobInfo;
-
-            mockBulkConnection.createBatchFromStream(_, _) >> mockBatchInfo;
-
-
-            mockQueryResultList.getResult() >> [resultId];
-            mockBulkConnection.getQueryResultStream(_, _, _) >> new ByteArrayInputStream('"fruit"\r\n"orange"'.getBytes());;
-            mockBatchInfo.getState() >> BatchStateEnum.Completed;
-            mockBulkConnection.getBatchInfo(_, _) >> mockBatchInfo;
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def result = webServiceClient.exportDataFromTable(tableName, filters);
+            Map<String, String> filters = ["fruit":"orange"];
+            mockObjectApi.getDataColumns(_) >>  ["fruit"]
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.exportDataFromTable('acd', filters);
 
         then:
-            assert result.size() == 1;
-            assert result[0].get("fruit") == "orange";
-            assert webServiceClient.publishStatusCheckTimeout == 30000;
+            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd WHERE fruit=\'orange\'')
+
     }
 
     def "Should create Object"() {
@@ -401,7 +235,6 @@ class SalesforceWebServiceClientTest extends Specification {
             def mockConnectionClient = Mock(SalesforceConnectionClient);
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
             def mockObjectApi = Mock(SObjectApi);
-            def id = "dfghj";
 
         when:
             webServiceClient.sObjectApi = mockObjectApi
@@ -413,32 +246,16 @@ class SalesforceWebServiceClientTest extends Specification {
 
     def "Should retrieve salesforce object as a map"() {
         given:
-            def sObject = new SObject("Mide");
-            sObject.setSObjectField("car", "Fiat Panda");
-            sObject.setId("fakeId");
-            def sObjects = [sObject];
             def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-            def mockField = Mock(Field);
-            def mockFields = [mockField];
-
-
+            def mockObjectApi = Mock(SObjectApi);
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-            mockPartnerConnection.describeSObject("Mide") >> mockDescribeSObjectResult;
-            mockDescribeSObjectResult.getFields() >> mockFields;
-            mockField.getName() >> "car";
-            mockField.getType() >> FieldType.string;
-            def ids = ["fakeId"]
-            mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
             def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def resultMap  = webServiceClient.retrieveObject("Mide", "fakeId");
-
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.retrieveObject("Mide", "fakeId");
 
         then:
-            assert resultMap.get("car").toString() == "Fiat Panda";
+            1 * mockObjectApi.retrieveSObject("Mide", "fakeId")
     }
 
     def "Should delete Object"() {
@@ -482,26 +299,19 @@ class SalesforceWebServiceClientTest extends Specification {
 
     def "Should execute Soql Query"() {
         given:
-
-            def mockConnectionClient = Mock(SalesforceConnectionClient);
-            def mockPartnerConnection = Mock(PartnerConnection);
-            def mockQueryResult = Mock(QueryResult);
-            def sObject = new SObject();
-            sObject.setField('abc', 123);
+            def mockConnectionClient = Mock(SalesforceConnectionClient)
+            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+            def mockObjectApi = Mock(SObjectApi);
 
 
 
         when:
-            mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection
-            mockPartnerConnection.query(_) >> mockQueryResult;
-            mockQueryResult.getRecords() >> [sObject];
-            def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
-            def result = webServiceClient .executeSoqlQuery('abc123');
+            webServiceClient.sObjectApi = mockObjectApi
+            webServiceClient.executeSoqlQuery('123344')
 
 
         then:
-            assert result.get(0).keySet().contains('abc');
-            assert result.get(0).values().contains(123);
+            1 * mockObjectApi.executeSoqlQuery('123344')
 
     }
 }

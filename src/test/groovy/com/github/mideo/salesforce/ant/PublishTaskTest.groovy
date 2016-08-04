@@ -11,7 +11,7 @@ class PublishTaskTest extends Specification {
 
     def setup() {
         csvFile = new File('foo.csv')
-        csvFile.write('abc')
+       csvFile.write('abc,abbb,sds,sdsss,ssfffff\n123,,123,sddf,\r\n')
         path = csvFile.getCanonicalPath()
     }
 
@@ -27,16 +27,13 @@ class PublishTaskTest extends Specification {
             def task = Spy(PublishTask);
             task.csvFilesRelativePath = path.minus('foo.csv')
             def mockWebClient = Mock(SalesforceWebServiceClient);
-            PublishResult publishResult = Mock(PublishResult);
 
         when:
-
             task.createWebClient() >> mockWebClient;
-            mockWebClient.publishCsvToTable(_, _) >> publishResult
-            publishResult.isPublished() >> true
+            mockWebClient.createObject(_,_)>> '123'
             task.execute();
 
         then:
-            assert task.result.isPublished();
+            assert task.publishId == '123';
     }
 }

@@ -35,7 +35,6 @@ class RetrieveTaskTest extends Specification {
             retrieveResult.add(rowMap)
 
         when:
-
             task.createWebClient() >> mockWebClient;
             mockWebClient.exportDataFromTable(_, _) >> retrieveResult
             task.execute();

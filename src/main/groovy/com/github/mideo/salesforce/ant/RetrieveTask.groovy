@@ -52,8 +52,9 @@ class RetrieveTask extends SalesforceTask {
             try{
                 List<Map<String, String>> exportedData = webClient.exportDataFromTable(it.key, it.value);
                 List headersFromConfigFile = it.value
-                println "Writing file to ${csvFileToWrite.getName()} to ${csvFilesRelativePath}"
+                println "Retrieved data for ${csvFileToWrite.getName()}"
                 writeRecordsToCSV(csvFileToWrite, headersFromConfigFile, exportedData)
+                println "Wrote file ${csvFileToWrite.getName()} to ${csvFilesRelativePath}"
             }catch (Exception e){
                 throw new Exception("Failed to retrieve sObject: ${it.key}\n ${e.message}");
             }

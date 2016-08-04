@@ -1,6 +1,7 @@
 package com.github.mideo.salesforce
 
 import com.jayway.restassured.response.Response
+import com.jayway.restassured.response.ResponseBody
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import com.sforce.soap.apex.ExecuteAnonymousResult
@@ -12,6 +13,7 @@ import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.partner.QueryResult
 import com.sforce.soap.partner.sobject.SObject
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import spock.lang.Specification
 
 import com.sforce.soap.partner.Field
@@ -21,20 +23,20 @@ class sObjectApiTest extends Specification {
     def "Should Get Data Columns"() {
         given:
         def tableName = "Rubarb";
-        def mockConnectionClient = Mock(SalesforceConnectionClient);
-        def mockPartnerConnection = Mock(PartnerConnection);
-        def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-        def mockField = Mock(Field);
-        def mockFields = [mockField];
-        def objectApi = new SObjectApi()
+        def mockRequestSpecification = Mock(RequestSpecification)
+        def response = Mock(Response)
+        def objectApi = Spy(SObjectApi);
+        def responseBody = Mock(ResponseBody)
 
         when:
-        mockConnectionClient.getSalesForceWebServicePartnerConnection() >> mockPartnerConnection;
-        mockPartnerConnection.describeSObject(tableName) >> mockDescribeSObjectResult;
-        mockDescribeSObjectResult.getFields() >> mockFields;
-        mockField.getName() >> "fruit";
-        mockField.getType() >> FieldType.string;
-        objectApi.partnerConnection = mockConnectionClient.getSalesForceWebServicePartnerConnection()
+        objectApi.getSpecification() >> mockRequestSpecification
+        mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+        mockRequestSpecification.header(_, _) >> mockRequestSpecification
+        response.statusCode() >> 200
+        mockRequestSpecification.get(_) >> response
+        responseBody.asString()>> JsonOutput.toJson([fields: [[ type : 'id' , name: 'fruit']]])
+        response.getBody() >> responseBody
+
         def resultName = objectApi.getDataColumns(tableName);
 
         then:
@@ -64,7 +66,10 @@ class sObjectApiTest extends Specification {
             mockRequestSpecification.body(_) >> mockRequestSpecification
             mockRequestSpecification.header(_, _) >> mockRequestSpecification
             response.statusCode() >> 201
-            response.print() >> JsonOutput.toJson([id: 'weweweer', success: true, errors: []])
+            def responseBody = Mock(ResponseBody)
+            responseBody.asString() >> JsonOutput.toJson([id: 'weweweer', success: true, errors: []])
+            response.getBody() >> responseBody
+
             mockRequestSpecification.post("/sobjects/${sObjectName}") >> response
             objectApi.restExplorerUrl = 'tryghjkl';
             objectApi.sessionToken = 'tryghjkl';
@@ -125,7 +130,10 @@ class sObjectApiTest extends Specification {
             mockRequestSpecification.baseUri(_) >> mockRequestSpecification
             mockRequestSpecification.body(_) >> mockRequestSpecification
             mockRequestSpecification.header(_, _) >> mockRequestSpecification
-            response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
+
+            def responseBody = Mock(ResponseBody)
+            responseBody.asString() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
+            response.getBody() >> responseBody
             response.statusCode() >> statusCode
 
             mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
@@ -168,7 +176,6 @@ class sObjectApiTest extends Specification {
         response.statusCode() >> 401
 
         mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
-        objectApi.requestSpecification = mockRequestSpecification
         objectApi.restExplorerUrl = 'tryghjkl';
         objectApi.sessionToken = 'tryghjkl';
         objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
@@ -201,7 +208,6 @@ class sObjectApiTest extends Specification {
         response.statusCode() >> 401
 
         mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
-        objectApi.requestSpecification = mockRequestSpecification
         objectApi.restExplorerUrl = 'tryghjkl';
         objectApi.sessionToken = 'tryghjkl';
         objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
@@ -213,43 +219,58 @@ class sObjectApiTest extends Specification {
     def "Should execute soql query"() {
 
         given:
-        def mockPartnerConnection = Mock(PartnerConnection);
-        def mockQueryResult = Mock(QueryResult);
-        def objectApi = new SObjectApi();
-        def sObject = new SObject();
-        sObject.setField('abc', 123);
+            def mockRequestSpecification = Mock(RequestSpecification)
+            def response = Mock(Response)
+            def objectApi = Spy(SObjectApi);
 
         when:
 
-        mockPartnerConnection.query(_) >> mockQueryResult;
-        mockQueryResult.getRecords() >> [sObject];
-        objectApi.partnerConnection = mockPartnerConnection
-        def result = objectApi.executeSoqlQuery('abc123');
+            objectApi.getSpecification() >> mockRequestSpecification
+            mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+            mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            response.statusCode() >> 200
+            mockRequestSpecification.get(_) >> response
+            def responseBody = Mock(ResponseBody)
+            response.getBody() >> responseBody
+            responseBody.asString() >> JsonOutput.toJson(
+                [totalSize : '1', done : true, records : [ [attributes : [ type : "Dummy",
+                        url : "/services/data/v37.0/sobjects/abc/a0H4E000001LO61UAG"
+                    ], abc : 123 ]]
+
+                ]
+            )
+            def result = objectApi.executeSoqlQuery('abc123');
 
         then:
-        assert result.get(0).keySet().contains('abc');
-        assert result.get(0).values().contains(123);
+            assert result.get(0).keySet().contains('abc');
+            assert result.get(0).values().contains(123);
     }
 
     def "Should Retrieve SObject"() {
         given:
+
+        def mockPartnerConnection = Mock(PartnerConnection);
+        def objectApi = Spy(SObjectApi)
+
         def sObject = new SObject("Mide");
         sObject.setSObjectField("car", "Fiat Panda");
         sObject.setId("fakeId");
         def sObjects = [sObject];
-        def mockDescribeSObjectResult = Mock(DescribeSObjectResult);
-        def mockField = Mock(Field);
-        def mockFields = [mockField];
-        def mockPartnerConnection = Mock(PartnerConnection);
-        def objectApi = new SObjectApi();
+        def mockRequestSpecification = Mock(RequestSpecification)
+        def response = Mock(Response)
+
 
 
         when:
 
-        mockPartnerConnection.describeSObject("Mide") >> mockDescribeSObjectResult;
-        mockDescribeSObjectResult.getFields() >> mockFields;
-        mockField.getName() >> "car";
-        mockField.getType() >> FieldType.string;
+        objectApi.getSpecification() >> mockRequestSpecification
+        mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+        mockRequestSpecification.header(_, _) >> mockRequestSpecification
+        response.statusCode() >> 200
+        mockRequestSpecification.get(_) >> response
+        def responseBody = Mock(ResponseBody)
+        response.getBody() >> responseBody
+        responseBody.asString() >>  JsonOutput.toJson([fields: [[type: 'id', name: 'car']]])
         def ids = ["fakeId"]
         mockPartnerConnection.retrieve(_, "Mide", ids) >> sObjects;
 

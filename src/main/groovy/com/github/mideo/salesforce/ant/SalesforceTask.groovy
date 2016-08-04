@@ -11,7 +11,9 @@ public class SalesforceTask extends Task {
     protected String userName;
     protected String password;
 
-
+    public void setPollingTimeout(long pollingTimeout) {
+        this.pollingTimeout = pollingTimeout
+    }
     public void setConfigFileName(String configFile) {
         this.configFileName = configFile
     }
