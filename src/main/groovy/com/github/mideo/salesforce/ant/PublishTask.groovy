@@ -38,7 +38,6 @@ class PublishTask extends SalesforceTask {
                 if (file.name.endsWith('.csv')) {
                     def sObjectName = file.name - '.csv'
                     println "Publishing custom settings for ${sObjectName}"
-                    webClient.executeSoqlQuery("SELECT ID FROM ${sObjectName}")
                     webClient.exportDataFromTable(sObjectName, ['Id']).each {
                         try {
                             webClient.deleteObject(it['Id']);
