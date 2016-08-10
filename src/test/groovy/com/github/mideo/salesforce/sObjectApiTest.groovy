@@ -136,10 +136,10 @@ class sObjectApiTest extends Specification {
             response.getBody() >> responseBody
             response.statusCode() >> statusCode
 
-            mockRequestSpecification.post("/sobjects/${sObjectName}/Id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
+            mockRequestSpecification.post("/sobjects/${sObjectName}/id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
             objectApi.restExplorerUrl = 'tryghjkl';
             objectApi.sessionToken = 'tryghjkl';
-            def Id = objectApi.createOrUpdateSObject(sObjectName, 'Id', mockAccount);
+            def Id = objectApi.createOrUpdateSObject(sObjectName, 'id', mockAccount);
 
         then:
             assert Id == result;

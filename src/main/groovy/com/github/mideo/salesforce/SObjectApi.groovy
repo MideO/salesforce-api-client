@@ -76,20 +76,22 @@ class SObjectApi {
             throw new Exception("${sObjectName} must be set")
         }
 
-        String id = deserializableObject.id
-        deserializableObject.id=null
+        String externalId = deserializableObject[externalIdFieldName]
+        deserializableObject[externalIdFieldName]=null
+
+
         Response response =  getSpecification()
                 .baseUri(restExplorerUrl)
                 .body(deNulledJson(deserializableObject))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
-                .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(id,"UTF-8")}/?_HttpMethod=PATCH");
+                .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(externalId,"UTF-8")}/?_HttpMethod=PATCH");
         validateResponse(response, sObjectName);
         if( response.statusCode() == 204) {
             return new JsonSlurper().parseText(response.body.asString()).id;
         }
-        return id;
+        return externalId;
 
 
     }
