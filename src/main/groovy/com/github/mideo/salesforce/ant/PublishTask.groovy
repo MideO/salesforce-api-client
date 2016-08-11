@@ -1,6 +1,5 @@
 package com.github.mideo.salesforce.ant
 
-import com.github.mideo.salesforce.PublishResult
 import com.github.mideo.salesforce.SalesforceConfig
 import com.github.mideo.salesforce.SalesforceConnectionClient
 import com.github.mideo.salesforce.SalesforceWebServiceClient
