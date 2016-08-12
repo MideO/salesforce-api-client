@@ -11,22 +11,17 @@ import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException
 import groovy.json.JsonSlurper
 import org.codehaus.jackson.map.ObjectMapper
+import org.codehaus.jackson.map.annotate.JsonSerialize
 
 import static groovy.json.JsonOutput.toJson
+
 
 
 class SObjectApi {
     String restExplorerUrl, sessionToken;
     PartnerConnection partnerConnection;
     SoapConnection soapConnection;
-    static ObjectMapper mapper = new ObjectMapper();
-
-    static String deNulledJson(Object object){
-        Map dataMap = mapper.convertValue(object, Map.class)
-
-        return toJson(dataMap.findAll { it.value != null });
-
-    }
+    static ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
 
     RequestSpecification getSpecification() {
@@ -61,7 +56,7 @@ class SObjectApi {
     String createSObject(String sObjectName, Object deserializableObject) throws ConnectionException {
         Response response =  getSpecification()
                 .baseUri(restExplorerUrl)
-                .body(deNulledJson(deserializableObject))
+                .body(toJson(mapper.convertValue(deserializableObject, Map.class)))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
@@ -82,7 +77,7 @@ class SObjectApi {
 
         Response response =  getSpecification()
                 .baseUri(restExplorerUrl)
-                .body(deNulledJson(deserializableObject))
+                .body(toJson(mapper.convertValue(deserializableObject, Map.class)))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
@@ -101,7 +96,7 @@ class SObjectApi {
     String updateSObject(String sObjectName, String id, Object deserializableObject) throws ConnectionException {
         Response response = getSpecification()
                 .baseUri(restExplorerUrl)
-                .body(deNulledJson(deserializableObject))
+                .body(toJson(mapper.convertValue(deserializableObject, Map.class)))
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
