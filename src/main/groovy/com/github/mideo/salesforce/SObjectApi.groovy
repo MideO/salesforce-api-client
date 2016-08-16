@@ -77,7 +77,7 @@ class SObjectApi {
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
-                .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(externalId,"UTF-8")}/?_HttpMethod=PATCH");
+                .patch("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(externalId,"UTF-8")}");
         validateResponse(response, sObjectName);
         if( response.statusCode() == 204) {
             return externalId;
@@ -94,7 +94,7 @@ class SObjectApi {
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
-                .post("/sobjects/${sObjectName}/${id}");
+                .patch("/sobjects/${sObjectName}/${id}");
         validateResponse(response, sObjectName);
         return id;
     }

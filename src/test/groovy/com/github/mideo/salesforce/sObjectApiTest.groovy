@@ -100,7 +100,7 @@ class sObjectApiTest extends Specification {
             mockRequestSpecification.header(_, _) >> mockRequestSpecification
             response.statusCode() >> 201
             response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
-            mockRequestSpecification.post("/sobjects/${sObjectName}/${id}") >> response
+            mockRequestSpecification.patch("/sobjects/${sObjectName}/${id}") >> response
             objectApi.restExplorerUrl = 'tryghjkl';
             objectApi.sessionToken = 'tryghjkl';
 
@@ -136,7 +136,7 @@ class sObjectApiTest extends Specification {
             response.getBody() >> responseBody
             response.statusCode() >> statusCode
 
-            mockRequestSpecification.post("/sobjects/${sObjectName}/id/${URLEncoder.encode(mockAccount.id, "UTF-8")}/?_HttpMethod=PATCH") >> response
+            mockRequestSpecification.patch("/sobjects/${sObjectName}/id/${URLEncoder.encode(mockAccount.id, "UTF-8")}") >> response
             objectApi.restExplorerUrl = 'tryghjkl';
             objectApi.sessionToken = 'tryghjkl';
             def Id = objectApi.createOrUpdateSObject(sObjectName, 'id', mockAccount);
