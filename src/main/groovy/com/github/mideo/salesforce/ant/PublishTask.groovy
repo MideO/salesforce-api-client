@@ -37,20 +37,10 @@ class PublishTask extends SalesforceTask {
                 if (file.name.endsWith('.csv')) {
                     def sObjectName = file.name - '.csv'
                     println "Publishing custom settings for ${sObjectName}"
-                    webClient.exportDataFromTable(sObjectName, ['Id']).each {
-                        try {
-                            webClient.deleteObject(it['Id']);
-                        } catch (ConnectionException connectionException) {
-                            throw new Exception(
-                                    "Failed to delete \nObject: ${sObjectName}\nCode: ${connectionException.getMessage()}"
-                            );
-                        }
-                    }
-
                     try {
                         def lines = file.readLines()
                         def keys = lines[0].split(',')
-                        def map = [:]
+                        def dataMap = [:]
                         if (lines.size() > 1) {
                             lines[1..-1].collect { line ->
                                 List vals = line.split(',')
@@ -58,16 +48,49 @@ class PublishTask extends SalesforceTask {
                                     vals.add('')
                                 }
                                 for (int i = 0; i < keys.size(); i++) {
-                                    map[keys[i]] = vals[i]
+                                    dataMap[keys[i]] = vals[i]
                                 }
-                                publishId = webClient.createObject(sObjectName, map)
+
+                                def searchMap = [:]
+                                searchMap[dataMap.keySet()[0]] = dataMap[dataMap.keySet()[0]]
+                                List<Map<String, Object>> result = webClient.exportDataFromTable(sObjectName,['Id'], searchMap)
+                                if (result.size() > 0){
+                                    result.each {
+                                        webClient.deleteObject(it['Id'] as String)
+                                    }
+                                }
+                                    publishId = webClient.createObject(sObjectName, dataMap)
+
+
                             }
                         }
 
-                    } catch (Exception ex) {
-                        throw new Exception(
-                                "Failed to publish CSV: \nMessage: ${ex}"
-                        );
+                    } catch (Exception ignored) {
+                        webClient.exportDataFromTable(sObjectName, ['Id']).each {
+                            try {
+                                webClient.deleteObject(it['Id']);
+                            } catch (ConnectionException connectionException) {
+                                throw new Exception(
+                                        "Failed to delete \nObject: ${sObjectName}\nCode: ${connectionException.getMessage()}"
+                                );
+                            }
+                        }
+                        def lines = file.readLines()
+                        def keys = lines[0].split(',')
+                        def dataMap = [:]
+                        if (lines.size() > 1) {
+                            lines[1..-1].collect { line ->
+                                List vals = line.split(',')
+                                if (line.endsWith(',')) {
+                                    vals.add('')
+                                }
+                                for (int i = 0; i < keys.size(); i++) {
+                                    dataMap[keys[i]] = vals[i]
+                                }
+                                publishId = webClient.createObject(sObjectName, dataMap)
+
+                            }
+                        }
                     }
                 }
         }

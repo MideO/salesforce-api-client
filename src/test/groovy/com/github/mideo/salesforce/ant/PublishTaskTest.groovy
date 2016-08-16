@@ -27,10 +27,12 @@ class PublishTaskTest extends Specification {
             def task = Spy(PublishTask);
             task.csvFilesRelativePath = path.minus('foo.csv')
             def mockWebClient = Mock(SalesforceWebServiceClient);
+            List<Map<String, Object>> result = new ArrayList<>()
 
         when:
             task.createWebClient() >> mockWebClient;
             mockWebClient.createObject(_,_)>> '123'
+            mockWebClient.exportDataFromTable(_,_, _)>> result
             task.execute();
 
         then:

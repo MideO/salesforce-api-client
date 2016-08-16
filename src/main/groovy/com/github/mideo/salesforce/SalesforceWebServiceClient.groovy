@@ -264,7 +264,7 @@ public class SalesforceWebServiceClient {
         for (Map.Entry entry : filters.entrySet()) {
             filterList.add(String.format("%s='%s'", entry.getKey(), entry.getValue()));
         }
-        QUERY_TEMPLATE += filterList.size() == 0 ? "" : " WHERE " + StringUtils.join(filterList, ',');
+        QUERY_TEMPLATE += filterList.size() == 0 ? "" : " WHERE " + StringUtils.join(filterList, ' AND ');
 
         String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns, ','));
         try {

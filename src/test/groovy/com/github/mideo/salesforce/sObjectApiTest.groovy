@@ -100,7 +100,7 @@ class sObjectApiTest extends Specification {
             mockRequestSpecification.header(_, _) >> mockRequestSpecification
             response.statusCode() >> 201
             response.print() >> JsonOutput.toJson([id: 'fugazi', success: true, errors: []])
-            mockRequestSpecification.post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH") >> response
+            mockRequestSpecification.post("/sobjects/${sObjectName}/${id}") >> response
             objectApi.restExplorerUrl = 'tryghjkl';
             objectApi.sessionToken = 'tryghjkl';
 
@@ -146,8 +146,8 @@ class sObjectApiTest extends Specification {
 
         where:
             statusCode || result
-            201        || 'wkhjwjek'
-            204        || 'fugazi'
+            201        || 'fugazi'
+            204        || 'wkhjwjek'
 
     }
 

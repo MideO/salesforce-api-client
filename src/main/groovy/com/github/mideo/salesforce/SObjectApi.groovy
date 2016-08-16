@@ -67,10 +67,6 @@ class SObjectApi {
 
 
     String createOrUpdateSObject(String sObjectName, String externalIdFieldName, Object deserializableObject) throws Exception {
-        if( deserializableObject.id ==  null ) {
-            throw new Exception("${sObjectName} must be set")
-        }
-
         String externalId = deserializableObject[externalIdFieldName]
         deserializableObject[externalIdFieldName]=null
 
@@ -84,11 +80,9 @@ class SObjectApi {
                 .post("/sobjects/${sObjectName}/${externalIdFieldName}/${URLEncoder.encode(externalId,"UTF-8")}/?_HttpMethod=PATCH");
         validateResponse(response, sObjectName);
         if( response.statusCode() == 204) {
-            return new JsonSlurper().parseText(response.body.asString()).id;
+            return externalId;
         }
-        return externalId;
-
-
+        return new JsonSlurper().parseText(response.body.asString()).id;
     }
 
 
@@ -100,7 +94,7 @@ class SObjectApi {
                 .header("Accept", "application/json")
                 .header('Authorization', "Bearer ${sessionToken}")
                 .header("Content-Type", "application/json")
-                .post("/sobjects/${sObjectName}/${id}?_HttpMethod=PATCH");
+                .post("/sobjects/${sObjectName}/${id}");
         validateResponse(response, sObjectName);
         return id;
     }
