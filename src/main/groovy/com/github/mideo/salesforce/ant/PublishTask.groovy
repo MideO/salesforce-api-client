@@ -4,7 +4,6 @@ import com.github.mideo.salesforce.SalesforceConfig
 import com.github.mideo.salesforce.SalesforceConnectionClient
 import com.github.mideo.salesforce.SalesforceWebServiceClient
 import com.sforce.ws.ConnectionException
-import groovy.io.FileType
 
 
 class PublishTask extends SalesforceTask {
@@ -31,11 +30,10 @@ class PublishTask extends SalesforceTask {
             return;
         }
 
-        new File(csvFilesRelativePath).eachFileRecurse(FileType.FILES) {
+        new File(csvFilesRelativePath).listFiles().each {
 
-            file ->
-                if (file.name.endsWith('.csv')) {
-                    def sObjectName = file.name - '.csv'
+                if (it.name.endsWith('.csv')) {
+                    def sObjectName = it.name - '.csv'
                     println "Publishing custom settings for ${sObjectName}"
                     try {
                         def lines = file.readLines()
@@ -75,7 +73,7 @@ class PublishTask extends SalesforceTask {
                                 );
                             }
                         }
-                        def lines = file.readLines()
+                        def lines = it.readLines()
                         def keys = lines[0].split(',')
                         def dataMap = [:]
                         if (lines.size() > 1) {

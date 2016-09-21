@@ -1,6 +1,5 @@
 package com.github.mideo.salesforce.ant
 
-import com.github.mideo.salesforce.PublishResult
 import com.github.mideo.salesforce.SalesforceWebServiceClient
 import spock.lang.Specification
 
@@ -10,9 +9,14 @@ class PublishTaskTest extends Specification {
     def path
 
     def setup() {
-        csvFile = new File('foo.csv')
-       csvFile.write('abc,abbb,sds,sdsss,ssfffff\n123,,123,sddf,\r\n')
-        path = csvFile.getCanonicalPath()
+        new File(System.getProperty("user.dir") + 'csvdata').mkdir();
+
+        path = System.getProperty("user.dir")   + '/csvdata';
+
+        csvFile = new File(path+'/foo.csv')
+
+        csvFile.write('abc,abbb,sds,sdsss,ssfffff\n123,,123,sddf,\r\n')
+
     }
 
     def cleanup() {
