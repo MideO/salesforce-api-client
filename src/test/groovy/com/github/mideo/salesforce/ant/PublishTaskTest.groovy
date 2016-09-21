@@ -9,7 +9,7 @@ class PublishTaskTest extends Specification {
     def path
 
     def setup() {
-        new File(System.getProperty("user.dir") + 'csvdata').mkdir();
+        new File(System.getProperty("user.dir") + '/csvdata').mkdir();
 
         path = System.getProperty("user.dir")   + '/csvdata';
 
@@ -21,7 +21,9 @@ class PublishTaskTest extends Specification {
 
     def cleanup() {
 
-        csvFile.delete()
+        csvFile.delete();
+        new File(System.getProperty("user.dir") + '/csvdata').deleteDir();
+
     }
 
 
