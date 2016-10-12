@@ -48,12 +48,43 @@ public class SalesforceWebServiceClient {
      * @throws AsyncApiException Saleforce Api AsyncApiException
      **/
     public PublishResult publishCsvToTable(InputStream csvInputStream, String targetObjectName) throws AsyncApiException {
+        publishDataToTable(csvInputStream, targetObjectName, ContentType.CSV);
+    }
+
+    /**
+     * @param jsonInputStream input stream from json file
+     * @param targetObjectName Salesforce Object Name
+     * @return PublishResult publish result object
+     * @throws AsyncApiException Saleforce Api AsyncApiException
+     **/
+    public PublishResult publishJsonToTable(InputStream jsonInputStream, String targetObjectName) throws AsyncApiException {
+        publishDataToTable(jsonInputStream, targetObjectName, ContentType.JSON);
+    }
+
+    /**
+     * @param jsonInputStream input stream from json file
+     * @param targetObjectName Salesforce Object Name
+     * @return PublishResult publish result object
+     * @throws AsyncApiException Saleforce Api AsyncApiException
+     **/
+    public PublishResult publishXMLToTable(InputStream jsonInputStream, String targetObjectName) throws AsyncApiException {
+        publishDataToTable(jsonInputStream, targetObjectName, ContentType.XML);
+    }
+
+    /**
+     * @param InputStream
+     * @param targetObjectName Salesforce Object Name
+     * @param contentType com.sforce.async.ContentType
+     * @return PublishResult publish result object
+     * @throws AsyncApiException Saleforce Api AsyncApiException
+     **/
+    public PublishResult publishDataToTable(InputStream inputStream, String targetObjectName, ContentType contentType) throws AsyncApiException {
         JobInfo jobInfo = job.newJobInfo(targetObjectName)
-                    .toInsert(ContentType.CSV)
+                .toInsert(contentType)
                 .create();
 
         PublishResult publishResult = batch.addJob(jobInfo)
-                .withInputStream(csvInputStream)
+                .withInputStream(inputStream)
                 .createStream().finaliseJob();
 
         if (getBatchDataStatus(jobInfo.getId(), batch.batchInfo.id) == BatchStateEnum.Failed.name()) {
