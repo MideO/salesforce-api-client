@@ -228,6 +228,7 @@ class sObjectApiTest extends Specification {
             objectApi.getSpecification() >> mockRequestSpecification
             mockRequestSpecification.baseUri(_) >> mockRequestSpecification
             mockRequestSpecification.header(_, _) >> mockRequestSpecification
+            mockRequestSpecification.urlEncodingEnabled(_) >> mockRequestSpecification
             response.statusCode() >> 200
             mockRequestSpecification.get(_) >> response
             def responseBody = Mock(ResponseBody)

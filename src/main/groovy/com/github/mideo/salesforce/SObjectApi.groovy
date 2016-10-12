@@ -123,6 +123,7 @@ class SObjectApi {
         Response response = getSpecification()
                 .baseUri(restExplorerUrl)
                 .header('Authorization', "Bearer ${sessionToken}")
+                .urlEncodingEnabled(false)
                 .get("/query/?q=${queryString}");
         validateResponse(response);
         return new JsonSlurper().parseText(response.body.asString()).records.each{

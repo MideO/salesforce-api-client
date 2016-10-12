@@ -80,7 +80,7 @@ class SalesforceWebServiceClientTest extends Specification {
             webServiceClient.exportDataFromTable('acd');
 
         then:
-            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd')
+            1 * mockObjectApi.executeSoqlQuery(URLEncoder.encode('SELECT fruit FROM acd'))
 
     }
 
@@ -96,7 +96,7 @@ class SalesforceWebServiceClientTest extends Specification {
         webServiceClient.exportDataFromTable('acd', ["fruit"]);
 
         then:
-        1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd')
+        1 * mockObjectApi.executeSoqlQuery(URLEncoder.encode('SELECT fruit FROM acd'))
 
     }
 
@@ -113,7 +113,8 @@ class SalesforceWebServiceClientTest extends Specification {
             webServiceClient.exportDataFromTable('acd', ["fruit"], filters);
 
         then:
-            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd WHERE fruit=\'orange\'')
+            1 * mockObjectApi.executeSoqlQuery(URLEncoder.encode('SELECT fruit FROM acd WHERE fruit=\'orange\''))
+
     }
 
 
@@ -147,7 +148,7 @@ class SalesforceWebServiceClientTest extends Specification {
             webServiceClient.exportDataFromTable('acd', filters);
 
         then:
-            1 * mockObjectApi.executeSoqlQuery('SELECT fruit FROM acd WHERE fruit=\'orange\'')
+            1 * mockObjectApi.executeSoqlQuery(URLEncoder.encode('SELECT fruit FROM acd WHERE fruit=\'orange\''))
 
     }
 

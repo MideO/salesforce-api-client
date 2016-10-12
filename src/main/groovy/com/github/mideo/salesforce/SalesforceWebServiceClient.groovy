@@ -12,10 +12,10 @@ public class SalesforceWebServiceClient {
 
 
     private SalesforceConnectionClient salesforceConnectionClient;
-    Job job;
-    Batch batch;
+    private Job job;
+    private Batch batch;
 
-    SObjectApi sObjectApi;
+    private SObjectApi sObjectApi;
 
     /**
      * @param salesforceConnectionClient Initiated Salesforce Connection client
@@ -266,12 +266,12 @@ public class SalesforceWebServiceClient {
         }
         QUERY_TEMPLATE += filterList.size() == 0 ? "" : " WHERE " + StringUtils.join(filterList, ' AND ');
 
-        String query = String.format(QUERY_TEMPLATE, StringUtils.join(columns, ','));
+        String query = URLEncoder.encode(String.format(QUERY_TEMPLATE, StringUtils.join(columns, ',')), "UTF-8");
         try {
-            return sObjectApi.executeSoqlQuery(query)
+            List<Map<String, Object>> result = sObjectApi.executeSoqlQuery(query)
+            return result == null ? result : result.sort();
         }catch (Exception e){
-
-                throw new SalesforceApiOperationException(e.getMessage())
+            throw new SalesforceApiOperationException(e.getMessage())
         }
     }
 
