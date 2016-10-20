@@ -26,7 +26,7 @@ repositories {
 #####Add dependency
 ```groovy
 dependencies {
-    compile group: 'com.github.mideo', name:'salesforce-api-client', version: '0.0.1'
+    compile group: 'com.github.mideo', name:'salesforce-api-client', version: '0.0.2'
 }
 ```
 
