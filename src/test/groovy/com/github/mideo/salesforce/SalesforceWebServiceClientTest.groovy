@@ -334,6 +334,22 @@ class SalesforceWebServiceClientTest extends Specification {
         1 * mockObjectApi.createOrUpdateSObject(sObjectName, 'Id', contact)
     }
 
+    def "Should describe salesforce object"() {
+         given:
+         def mockConnectionClient = Mock(SalesforceConnectionClient);
+         def mockObjectApi = Mock(SObjectApi);
+
+        when:
+        def webServiceClient = new SalesforceWebServiceClient(mockConnectionClient)
+        webServiceClient.sObjectApi = mockObjectApi
+        webServiceClient.describe("Mide");
+
+        then:
+        1 * mockObjectApi.describe("Mide");
+
+
+    }
+
     def "Should retrieve salesforce object as a map"() {
         given:
         def mockConnectionClient = Mock(SalesforceConnectionClient);

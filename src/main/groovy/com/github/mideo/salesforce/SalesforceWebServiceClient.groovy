@@ -105,6 +105,16 @@ public class SalesforceWebServiceClient {
     }
 
     /**
+     * @param sObjectName Salesforce Object Name
+     * @return deserializable Object
+     * @throws ConnectionException <br >Usage: <br >
+     *                             webClient.describeSObject("Account")
+     **/
+    public Object describe(String sObjectName) throws ConnectionException {
+        return sObjectApi.describe(sObjectName);
+    }
+
+    /**
      * @param queryString - soql query
      * @return
      */

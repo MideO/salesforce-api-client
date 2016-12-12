@@ -20,6 +20,31 @@ import com.sforce.soap.partner.Field
 
 class sObjectApiTest extends Specification {
 
+    def "Should Describe sObject"(){
+        given:
+        def tableName = "Rubarb";
+        def mockRequestSpecification = Mock(RequestSpecification)
+        def response = Mock(Response)
+        def objectApi = Spy(SObjectApi);
+        def responseBody = Mock(ResponseBody);
+
+        when:
+        objectApi.getSpecification() >> mockRequestSpecification
+        mockRequestSpecification.baseUri(_) >> mockRequestSpecification
+        mockRequestSpecification.header(_, _) >> mockRequestSpecification
+        response.statusCode() >> 200
+        mockRequestSpecification.get(_) >> response
+        responseBody.asString()>> JsonOutput.toJson([fields: [[ type : 'id' , name: 'fruit']]])
+        response.getBody() >> responseBody
+
+        def result = objectApi.describe(tableName);
+
+        then:
+        assert result.fields.type[0] == 'id';
+        assert result.fields.name[0] == 'fruit';
+
+    }
+
     def "Should Get Data Columns"() {
         given:
         def tableName = "Rubarb";

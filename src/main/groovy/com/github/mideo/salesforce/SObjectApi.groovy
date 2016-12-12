@@ -42,13 +42,19 @@ class SObjectApi {
         }
     }
 
-    List<String> getDataColumns(String targetObjectName) throws ConnectionException {
+    public Object describe(String targetObjectName){
         Response response = getSpecification()
                 .baseUri(restExplorerUrl)
                 .header('Authorization', "Bearer ${sessionToken}")
                 .get("/sobjects/${targetObjectName}/describe");
         validateResponse(response);
-        return new JsonSlurper().parseText(response.getBody().asString()).fields.collect()
+        return new JsonSlurper().parseText(response.getBody().asString())
+
+    }
+
+    List<String> getDataColumns(String targetObjectName) throws ConnectionException {
+
+        return describe(targetObjectName).fields.collect()
                 .findAll { it.type == FieldType.address.name() ? [] : it
                 }.collect{ it.name }
     }
