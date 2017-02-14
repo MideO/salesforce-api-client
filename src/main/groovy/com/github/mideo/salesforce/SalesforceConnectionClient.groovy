@@ -13,7 +13,7 @@ public class SalesforceConnectionClient {
     private SalesforceConfig salesforceConfig;
     String restExplorerEndpoint;
     String instanceUrl;
-    static ConnectorConfig sessionConfig
+    ConnectorConfig sessionConfig
     private sessionToken;
 
 
