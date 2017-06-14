@@ -6,7 +6,7 @@
 
 ### Setup dependency
 
-Requires: JDK "1.8"
+JDK "1.8"
 
 #### In build.gradle
 
@@ -18,9 +18,6 @@ repositories {
 
 ```
 
-
-
-   
 ##### Add dependency
 ```groovy
 dependencies {
