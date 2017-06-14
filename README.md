@@ -1,9 +1,7 @@
 # salesforce-api-client
 
-### Build Status
 [![Build Status](https://travis-ci.org/MideO/salesforce-api-client.svg?branch=master)](https://travis-ci.org/MideO/salesforce-api-client)
 
-### Maven Central
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.mideo/salesforce-api-client/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.mideo%22)
 
 ### Setup dependency
